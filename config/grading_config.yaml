@@ -1,0 +1,145 @@
+# Grading Rubric Configuration for Academic Software Auto-Grader
+# Version: 1.0
+# Last Updated: 2025-01-26
+
+version: "1.0"
+
+# Scoring Weights (must sum to 1.0)
+scoring_weights:
+  documentation: 0.25      # PRD, README, Architecture docs, CLAUDE.md
+  code_quality: 0.30       # Structure, naming, docstrings, complexity
+  testing: 0.15            # Coverage, edge cases, test quality
+  security: 0.10           # No secrets, proper .gitignore, vulnerabilities
+  git_workflow: 0.10       # Commit history, message quality, branching
+  research_quality: 0.10   # Parameter exploration, statistical analysis
+
+# Quality Thresholds
+thresholds:
+  # Code Quality
+  file_size_limit: 150            # Maximum lines per file (STRICTLY ENFORCED)
+  max_function_complexity: 10     # Maximum cyclomatic complexity
+  min_docstring_coverage: 0.90    # 90% of functions must have docstrings
+
+  # Testing
+  test_coverage_min: 0.70         # 70% minimum overall coverage
+  test_coverage_critical: 0.90    # 90% for critical/core logic
+
+  # Git Workflow
+  min_commits: 10                 # Minimum meaningful commits
+  min_commit_message_length: 10   # Minimum characters in commit message
+
+  # Documentation
+  min_prd_words: 1000            # Minimum words in PRD
+  min_readme_words: 200          # Minimum words in README
+  min_planning_words: 800        # Minimum words in PLANNING.md
+
+# Penalty Points (deducted from category score)
+penalties:
+  # Critical (Auto-Fail)
+  hardcoded_secret: -50           # CRITICAL: Hardcoded API keys, passwords
+
+  # Major Violations
+  missing_required_doc: -10       # Per missing required document
+  exceeds_file_limit: -10         # Per file exceeding 150 lines
+  low_test_coverage: -10          # Coverage below 70%
+
+  # Minor Violations
+  missing_docstring: -2           # Per function without docstring
+  poor_commit_message: -1         # Per vague commit message (e.g., "update", "fix")
+  insufficient_commits: -15       # If total commits < min_commits
+  naming_violation: -1            # Per naming convention violation
+  high_complexity: -2             # Per function with complexity > 10
+
+# Point Distribution
+point_distribution:
+  total_points: 100
+  passing_score: 70               # Minimum score to pass
+  excellence_threshold: 90        # Score for academic excellence
+
+# Required Documents Checklist
+required_documents:
+  - name: "PRD.md"
+    required_sections:
+      - "Project Overview"
+      - "Objectives"
+      - "Functional Requirements"
+      - "Success Metrics"
+    min_words: 1000
+
+  - name: "CLAUDE.md"
+    required_sections:
+      - "AI Tool Usage"
+      - "Prompt Documentation"
+    min_words: 500
+
+  - name: "PLANNING.md"
+    required_sections:
+      - "Architecture"
+      - "Technical Decisions"
+    min_words: 800
+
+  - name: "TASKS.md"
+    required_sections:
+      - "Task Breakdown"
+    min_words: 300
+
+  - name: "README.md"
+    required_sections:
+      - "Installation"
+      - "Usage"
+    min_words: 200
+
+# LLM Configuration for Subjective Assessment
+llm_config:
+  model: "claude-sonnet-4-5-20250929"
+  max_tokens: 4000
+  temperature: 0.0                # Deterministic grading
+  timeout: 30                     # Seconds
+
+# Output Configuration
+output:
+  formats: ["json", "html", "cli"]
+  save_location: "./results/"
+  filename_pattern: "{project_name}_grading_report_{timestamp}"
+
+# Grading Modes
+modes:
+  lenient:
+    test_coverage_min: 0.60
+    min_commits: 5
+    penalties_multiplier: 0.5
+
+  standard:
+    test_coverage_min: 0.70
+    min_commits: 10
+    penalties_multiplier: 1.0
+
+  strict:
+    test_coverage_min: 0.80
+    min_commits: 15
+    penalties_multiplier: 1.5
+
+# Supported Programming Languages
+supported_languages:
+  - python
+  - javascript
+  - typescript
+
+# File Extensions to Analyze
+file_extensions:
+  python: [".py"]
+  javascript: [".js"]
+  typescript: [".ts"]
+  markdown: [".md"]
+
+# Directories to Ignore During Analysis
+ignore_directories:
+  - "node_modules"
+  - "venv"
+  - "env"
+  - ".git"
+  - "__pycache__"
+  - "dist"
+  - "build"
+  - ".pytest_cache"
+  - ".mypy_cache"
