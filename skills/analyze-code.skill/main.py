@@ -20,10 +20,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.analyzers.file_size_analyzer import check_file_sizes, generate_size_report
 from src.analyzers.docstring_analyzer import analyze_project_docstrings
 from src.validators.naming_validator import analyze_project_naming
-from .display_formatter import (
-    display_header, display_file_size_results,
-    display_docstring_results, display_naming_results, display_summary
-)
+
+# Handle both direct execution and module import
+try:
+    from .display_formatter import (
+        display_header, display_file_size_results,
+        display_docstring_results, display_naming_results, display_summary
+    )
+except ImportError:
+    from display_formatter import (
+        display_header, display_file_size_results,
+        display_docstring_results, display_naming_results, display_summary
+    )
 
 
 def analyze_code(project_path: str, language: str = 'python') -> dict:
