@@ -13,25 +13,7 @@ Key Features:
 import os
 from typing import List, Set
 
-
-# Default directories to ignore during file search
-DEFAULT_IGNORE_DIRS: Set[str] = {
-    'node_modules',
-    'venv',
-    'env',
-    '.git',
-    '__pycache__',
-    'dist',
-    'build',
-    '.pytest_cache',
-    '.mypy_cache',
-    '.tox',
-    'htmlcov',
-    '.eggs',
-    '*.egg-info',
-    'temp',
-    'tmp',
-}
+from .file_finder_config import DEFAULT_IGNORE_DIRS
 
 
 def find_code_files(
