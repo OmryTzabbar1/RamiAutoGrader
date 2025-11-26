@@ -1,0 +1,35 @@
+name: grade-research
+description: |
+  Evaluates research quality for academic software projects.
+
+  Checks for:
+  - Research documentation (RESEARCH.md, EXPERIMENTS.md, etc.)
+  - Parameter exploration files (experiments.yaml, parameters.yaml)
+  - Analysis scripts (analyze.py, experiment.py, etc.)
+  - Statistical analysis artifacts
+
+  Returns a score out of 10 points (research quality category weight).
+
+version: 1.0.0
+author: Auto-Grader System
+
+entry_point: main.py
+
+requirements:
+  - Python 3.8+
+
+usage: |
+  # Evaluate research quality in a project
+  python main.py /path/to/project
+
+  # Output as JSON
+  python main.py /path/to/project --json
+
+examples:
+  - name: Basic evaluation
+    command: python main.py ../my-project
+    description: Evaluates research quality in the project
+
+  - name: JSON output
+    command: python main.py ../my-project --json
+    description: Returns evaluation results as JSON
