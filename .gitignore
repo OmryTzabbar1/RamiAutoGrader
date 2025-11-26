@@ -57,6 +57,8 @@ grading_reports/
 temp/
 tmp/
 temp_grading/
+temp_grading_*/
+UsersGuest1CoOp*/
 
 # OS
 Thumbs.db
