@@ -8,8 +8,8 @@ Uses AST parsing for accurate detection.
 """
 
 from typing import List, Dict
-from dataclasses import dataclass
 
+from ..models.code_models import DocstringViolation
 from ..parsers.python_parser import (
     parse_python_file,
     extract_functions,
@@ -19,13 +19,14 @@ from ..parsers.python_parser import (
 from ..utils.file_finder import find_code_files
 
 
-@dataclass
-class DocstringViolation:
-    """Represents a missing docstring."""
-    file_path: str
-    item_type: str  # 'module', 'function', 'class', 'method'
-    item_name: str
-    line_number: int
+def _should_check_function(func_name: str) -> bool:
+    """Determine if function should be checked for docstring."""
+    return not (func_name.startswith('_') and not func_name.startswith('__'))
+
+
+def _should_check_method(method_name: str) -> bool:
+    """Determine if method should be checked for docstring."""
+    return not (method_name.startswith('_') and method_name != '__init__')
 
 
 def check_docstrings(file_path: str) -> Dict:
@@ -36,82 +37,49 @@ def check_docstrings(file_path: str) -> Dict:
         file_path: Path to Python file
 
     Returns:
-        Dict containing:
-            - total_items: Number of items checked
-            - missing: Number without docstrings
-            - coverage: Percentage (0.0-1.0)
-            - violations: List of DocstringViolation
+        Dict containing total_items, missing, coverage, violations
 
     Example:
         >>> result = check_docstrings('script.py')
         >>> print(f"Coverage: {result['coverage']:.1%}")
-        Coverage: 85.5%
     """
     tree = parse_python_file(file_path)
     if not tree:
-        return {
-            'total_items': 0,
-            'missing': 0,
-            'coverage': 0.0,
-            'violations': [],
-            'error': 'Failed to parse file'
-        }
+        return {'total_items': 0, 'missing': 0, 'coverage': 0.0,
+                'violations': [], 'error': 'Failed to parse file'}
 
     violations = []
-    total_items = 0
+    total_items = 1  # Module counts as 1
 
     # Check module docstring
-    total_items += 1
     if not get_module_docstring(tree):
         violations.append(DocstringViolation(
-            file_path=file_path,
-            item_type='module',
-            item_name='<module>',
-            line_number=1
-        ))
+            file_path, 'module', '<module>', 1))
 
     # Check functions
-    functions = extract_functions(tree)
-    for func in functions:
-        # Skip private/dunder functions
-        if func.name.startswith('_') and not func.name.startswith('__'):
+    for func in extract_functions(tree):
+        if not _should_check_function(func.name):
             continue
-
         total_items += 1
         if not func.has_docstring:
             violations.append(DocstringViolation(
-                file_path=file_path,
-                item_type='function',
-                item_name=func.name,
-                line_number=func.line_number
-            ))
+                file_path, 'function', func.name, func.line_number))
 
-    # Check classes and their methods
-    classes = extract_classes(tree)
-    for cls in classes:
+    # Check classes and methods
+    for cls in extract_classes(tree):
         total_items += 1
         if not cls.has_docstring:
             violations.append(DocstringViolation(
-                file_path=file_path,
-                item_type='class',
-                item_name=cls.name,
-                line_number=cls.line_number
-            ))
+                file_path, 'class', cls.name, cls.line_number))
 
-        # Check methods
         for method in cls.methods:
-            # Skip private methods except __init__
-            if method.name.startswith('_') and method.name != '__init__':
+            if not _should_check_method(method.name):
                 continue
-
             total_items += 1
             if not method.has_docstring:
                 violations.append(DocstringViolation(
-                    file_path=file_path,
-                    item_type='method',
-                    item_name=f"{cls.name}.{method.name}",
-                    line_number=method.line_number
-                ))
+                    file_path, 'method',
+                    f"{cls.name}.{method.name}", method.line_number))
 
     coverage = 1.0 - (len(violations) / total_items) if total_items > 0 else 0.0
 
