@@ -24,6 +24,58 @@ This agent coordinates 7 specialized grading skills to evaluate academic softwar
 
 ## Grading Workflow
 
+### Phase 0: Git Repository Detection (If Applicable)
+
+**IMPORTANT:** Before starting grading, check if the user provided a Git URL instead of a local path.
+
+**Git URL Detection:**
+```python
+from src.utils.git_clone import is_git_url
+
+if is_git_url(user_input):
+    # User provided a Git URL - clone it first!
+    use_grade_from_git_skill = True
+else:
+    # User provided a local path - proceed normally
+    use_grade_from_git_skill = False
+```
+
+**If Git URL detected:**
+1. Invoke the `grade-from-git` skill OR use `grade_from_git.py`:
+   ```bash
+   python grade_from_git.py <repo_url> [branch] --output results.json
+   ```
+
+2. The skill will:
+   - Clone the repository to a temporary directory
+   - Run all grading skills on the cloned code
+   - Generate comprehensive report
+   - Clean up temporary files
+   - Return results
+
+3. Present results to user
+
+**Supported Git URLs:**
+- `https://github.com/user/repo.git`
+- `git@github.com:user/repo.git`
+- `https://gitlab.com/user/repo.git`
+- `https://bitbucket.org/user/repo.git`
+
+**Example conversation:**
+```
+User: "Grade https://github.com/student123/final-project.git"
+
+Agent: "I detected a Git URL. Let me clone and grade the repository..."
+       [Invokes grade-from-git skill]
+       "Successfully cloned student123/final-project"
+       [Runs all 7 grading skills]
+       [Presents comprehensive results]
+```
+
+**If local path provided, proceed to Phase 1.**
+
+---
+
 ### Phase 1: Project Validation
 
 1. **Verify project path exists**
