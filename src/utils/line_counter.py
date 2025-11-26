@@ -14,24 +14,7 @@ import os
 import re
 from typing import Dict
 
-
-# Comment patterns for different languages
-COMMENT_PATTERNS = {
-    'python': {
-        'single_line': r'^\s*#',
-        'docstring': r'^\s*("""|\'\'\').*\1\s*$'
-    },
-    'javascript': {
-        'single_line': r'^\s*//',
-        'multi_line_start': r'^\s*/\*',
-        'multi_line_end': r'\*/\s*$'
-    },
-    'typescript': {
-        'single_line': r'^\s*//',
-        'multi_line_start': r'^\s*/\*',
-        'multi_line_end': r'\*/\s*$'
-    },
-}
+from .comment_patterns import COMMENT_PATTERNS, EXTENSION_LANGUAGE_MAP
 
 
 def count_lines(
@@ -130,12 +113,7 @@ def get_line_stats(file_path: str) -> Dict[str, int]:
 
 def _detect_language(extension: str) -> str:
     """Detect language from file extension."""
-    ext_map = {
-        '.py': 'python',
-        '.js': 'javascript',
-        '.ts': 'typescript',
-    }
-    return ext_map.get(extension.lower(), '')
+    return EXTENSION_LANGUAGE_MAP.get(extension.lower(), '')
 
 
 def _is_comment_line(line: str, lang: str, in_multi: bool) -> bool:
