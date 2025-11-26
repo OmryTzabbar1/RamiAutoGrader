@@ -31,7 +31,8 @@
       "Bash(git -C \"C:\\Users\\Guest1\\AppData\\Local\\Temp\\autograder_7sp_p7z4\\RamiAutoGrader\" branch -a)",
       "Bash(test:*)",
       "Bash(git -C \"C:\\Users\\Guest1\\CoOp\\RamiAutoGrader\\temp_grading_omry\" rev-parse --git-dir)",
-      "Skill(generate-detailed-report)"
+      "Skill(generate-detailed-report)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []
