@@ -1,0 +1,35 @@
+name: check-ux
+description: |
+  Evaluates user experience quality for academic software projects.
+
+  Checks for:
+  - README usability (clear sections, examples)
+  - CLI help availability (argparse, --help flags)
+  - Documentation clarity
+  - User-facing features
+
+  Returns a score out of 10 points (UX quality category).
+
+version: 1.0.0
+author: Auto-Grader System
+
+entry_point: main.py
+
+requirements:
+  - Python 3.8+
+
+usage: |
+  # Evaluate UX quality in a project
+  python main.py /path/to/project
+
+  # Output as JSON
+  python main.py /path/to/project --json
+
+examples:
+  - name: Basic evaluation
+    command: python main.py ../my-project
+    description: Evaluates UX quality in the project
+
+  - name: JSON output
+    command: python main.py ../my-project --json
+    description: Returns evaluation results as JSON
