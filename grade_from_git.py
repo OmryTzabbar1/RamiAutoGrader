@@ -57,9 +57,9 @@ def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True,
     if branch:
         print(f"Branch: {branch}")
 
-    # Clone repository
+    # Clone repository (full clone for git workflow assessment)
     print(f"\n[*] Cloning repository...")
-    clone_result = clone_repository(repo_url, branch=branch, depth=1)
+    clone_result = clone_repository(repo_url, branch=branch, depth=None)
 
     if not clone_result['success']:
         print(f"\n[X] Clone failed: {clone_result['message']}")

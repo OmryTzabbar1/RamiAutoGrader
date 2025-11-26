@@ -202,7 +202,28 @@ grade = calculate_grade(total_score)
 passed = total_score >= 70
 ```
 
-### Phase 4: Generate Reports
+### Phase 4: Generate Detailed Report (MANDATORY)
+
+**CRITICAL:** After completing grading, ALWAYS invoke the detailed report skill:
+
+```bash
+/skill generate-detailed-report
+```
+
+This generates a comprehensive markdown report saved to `results/` with:
+- Specific file paths and line numbers for violations
+- Exact issues in each grading category
+- Actionable fix recommendations
+- Prioritized action items by point value
+- Quick-fix terminal commands
+- Estimated time to complete fixes
+
+**Report filename format:**
+```
+results/<project_name>_detailed_report_YYYY-MM-DD_HHMMSS.md
+```
+
+### Phase 5: Generate Additional Reports (Optional)
 
 **1. Console Summary:**
 ```bash

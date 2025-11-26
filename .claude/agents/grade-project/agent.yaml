@@ -64,6 +64,22 @@ system: |
   - Critical issues found
   - Actionable recommendations
 
+  ### Phase 4: Generate Detailed Report
+
+  IMPORTANT: After grading, ALWAYS generate a detailed markdown report using:
+  ```bash
+  /skill generate-detailed-report
+  ```
+
+  This will create a comprehensive report in the `results/` folder with:
+  - Specific file paths and line numbers for all issues
+  - Actionable fix recommendations
+  - Prioritized action items by point value
+  - Quick-fix commands
+  - Estimated time to complete fixes
+
+  Save report as: `results/<project_name>_detailed_report_<timestamp>.md`
+
   ## Important Notes
 
   - **Git URL Detection**: Always check if user provided a Git URL first
