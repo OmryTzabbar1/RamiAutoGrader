@@ -1,0 +1,246 @@
+{
+  "summary": {
+    "files_executed": 27,
+    "unique_functions_called": 84,
+    "total_function_calls": 3685,
+    "start_time": "2025-11-26T13:16:58.220746",
+    "stop_time": "2025-11-26T13:18:13.905923",
+    "duration_seconds": 75.685177
+  },
+  "files_called": [
+    "src\\analyzers\\__init__.py",
+    "src\\analyzers\\docstring_analyzer.py",
+    "src\\analyzers\\documentation_checker.py",
+    "src\\analyzers\\file_size_analyzer.py",
+    "src\\analyzers\\git_analyzer.py",
+    "src\\analyzers\\research_analyzer.py",
+    "src\\analyzers\\security_patterns.py",
+    "src\\analyzers\\security_scanner.py",
+    "src\\analyzers\\test_analyzer.py",
+    "src\\analyzers\\test_counter.py",
+    "src\\analyzers\\ux_analyzer.py",
+    "src\\models\\__init__.py",
+    "src\\models\\code_models.py",
+    "src\\parsers\\__init__.py",
+    "src\\parsers\\python_parser.py",
+    "src\\utils\\execution_tracer.py",
+    "src\\utils\\file_finder.py",
+    "src\\utils\\git_commands.py",
+    "src\\utils\\line_counter.py",
+    "src\\utils\\markdown_utils.py",
+    "src\\validators\\__init__.py",
+    "src\\validators\\document_requirements.py",
+    "src\\validators\\document_validator.py",
+    "src\\validators\\env_validator.py",
+    "src\\validators\\gitignore_validator.py",
+    "src\\validators\\naming_validator.py",
+    "src\\validators\\readme_validator.py"
+  ],
+  "files_by_directory": {
+    "src\\analyzers": [
+      "src\\analyzers\\__init__.py",
+      "src\\analyzers\\docstring_analyzer.py",
+      "src\\analyzers\\documentation_checker.py",
+      "src\\analyzers\\file_size_analyzer.py",
+      "src\\analyzers\\git_analyzer.py",
+      "src\\analyzers\\research_analyzer.py",
+      "src\\analyzers\\security_patterns.py",
+      "src\\analyzers\\security_scanner.py",
+      "src\\analyzers\\test_analyzer.py",
+      "src\\analyzers\\test_counter.py",
+      "src\\analyzers\\ux_analyzer.py"
+    ],
+    "src\\models": [
+      "src\\models\\__init__.py",
+      "src\\models\\code_models.py"
+    ],
+    "src\\parsers": [
+      "src\\parsers\\__init__.py",
+      "src\\parsers\\python_parser.py"
+    ],
+    "src\\utils": [
+      "src\\utils\\execution_tracer.py",
+      "src\\utils\\file_finder.py",
+      "src\\utils\\git_commands.py",
+      "src\\utils\\line_counter.py",
+      "src\\utils\\markdown_utils.py"
+    ],
+    "src\\validators": [
+      "src\\validators\\__init__.py",
+      "src\\validators\\document_requirements.py",
+      "src\\validators\\document_validator.py",
+      "src\\validators\\env_validator.py",
+      "src\\validators\\gitignore_validator.py",
+      "src\\validators\\naming_validator.py",
+      "src\\validators\\readme_validator.py"
+    ]
+  },
+  "top_functions": [
+    {
+      "function": "src\\utils\\file_finder.py::<genexpr>",
+      "call_count": 1696
+    },
+    {
+      "function": "src\\utils\\git_commands.py::<genexpr>",
+      "call_count": 329
+    },
+    {
+      "function": "src\\validators\\naming_validator.py::is_snake_case",
+      "call_count": 224
+    },
+    {
+      "function": "src\\analyzers\\docstring_analyzer.py::_should_check_function",
+      "call_count": 188
+    },
+    {
+      "function": "src\\validators\\document_validator.py::<genexpr>",
+      "call_count": 179
+    },
+    {
+      "function": "src\\parsers\\python_parser.py::parse_python_file",
+      "call_count": 134
+    },
+    {
+      "function": "src\\parsers\\python_parser.py::extract_functions",
+      "call_count": 134
+    },
+    {
+      "function": "src\\parsers\\python_parser.py::extract_classes",
+      "call_count": 134
+    },
+    {
+      "function": "src\\analyzers\\security_scanner.py::_scan_file",
+      "call_count": 83
+    },
+    {
+      "function": "src\\utils\\line_counter.py::count_lines",
+      "call_count": 67
+    },
+    {
+      "function": "src\\analyzers\\docstring_analyzer.py::check_docstrings",
+      "call_count": 67
+    },
+    {
+      "function": "src\\parsers\\python_parser.py::get_module_docstring",
+      "call_count": 67
+    },
+    {
+      "function": "src\\validators\\naming_validator.py::validate_naming_conventions",
+      "call_count": 67
+    },
+    {
+      "function": "src\\utils\\git_commands.py::message_length",
+      "call_count": 50
+    },
+    {
+      "function": "src\\utils\\git_commands.py::is_meaningful",
+      "call_count": 50
+    },
+    {
+      "function": "src\\analyzers\\docstring_analyzer.py::_should_check_method",
+      "call_count": 46
+    },
+    {
+      "function": "src\\validators\\readme_validator.py::<genexpr>",
+      "call_count": 43
+    },
+    {
+      "function": "src\\validators\\naming_validator.py::is_pascal_case",
+      "call_count": 15
+    },
+    {
+      "function": "src\\analyzers\\test_counter.py::analyze_test_file",
+      "call_count": 9
+    },
+    {
+      "function": "src\\analyzers\\test_counter.py::count_python_tests",
+      "call_count": 9
+    }
+  ],
+  "all_function_calls": {
+    "src\\analyzers\\__init__.py::<module>": 1,
+    "src\\analyzers\\security_scanner.py::<module>": 1,
+    "src\\models\\__init__.py::<module>": 1,
+    "src\\models\\code_models.py::<module>": 1,
+    "src\\models\\code_models.py::DocstringViolation": 1,
+    "src\\models\\code_models.py::FunctionInfo": 1,
+    "src\\models\\code_models.py::ClassInfo": 1,
+    "src\\models\\code_models.py::SecretFinding": 1,
+    "src\\models\\code_models.py::NamingViolation": 1,
+    "src\\models\\code_models.py::DocumentIssue": 1,
+    "src\\analyzers\\security_patterns.py::<module>": 1,
+    "src\\validators\\__init__.py::<module>": 1,
+    "src\\validators\\gitignore_validator.py::<module>": 1,
+    "src\\validators\\env_validator.py::<module>": 1,
+    "src\\analyzers\\documentation_checker.py::<module>": 1,
+    "src\\validators\\document_validator.py::<module>": 1,
+    "src\\utils\\markdown_utils.py::<module>": 1,
+    "src\\validators\\document_requirements.py::<module>": 1,
+    "src\\analyzers\\file_size_analyzer.py::<module>": 1,
+    "src\\analyzers\\file_size_analyzer.py::FileSizeViolation": 1,
+    "src\\analyzers\\docstring_analyzer.py::<module>": 1,
+    "src\\parsers\\__init__.py::<module>": 1,
+    "src\\parsers\\python_parser.py::<module>": 1,
+    "src\\validators\\naming_validator.py::<module>": 1,
+    "src\\analyzers\\test_analyzer.py::<module>": 1,
+    "src\\analyzers\\test_counter.py::<module>": 1,
+    "src\\analyzers\\git_analyzer.py::<module>": 1,
+    "src\\utils\\git_commands.py::<module>": 1,
+    "src\\utils\\git_commands.py::CommitInfo": 1,
+    "src\\analyzers\\research_analyzer.py::<module>": 1,
+    "src\\analyzers\\ux_analyzer.py::<module>": 1,
+    "src\\validators\\readme_validator.py::<module>": 1,
+    "src\\analyzers\\security_scanner.py::scan_for_secrets": 1,
+    "src\\utils\\file_finder.py::find_code_files": 8,
+    "src\\utils\\file_finder.py::<genexpr>": 1696,
+    "src\\analyzers\\security_scanner.py::_scan_file": 83,
+    "src\\validators\\gitignore_validator.py::validate_gitignore": 1,
+    "src\\validators\\env_validator.py::check_env_template": 1,
+    "src\\analyzers\\documentation_checker.py::check_project_documentation": 1,
+    "src\\analyzers\\documentation_checker.py::_validate_all_docs": 1,
+    "src\\validators\\document_validator.py::validate_document": 5,
+    "src\\utils\\markdown_utils.py::count_words": 5,
+    "src\\utils\\markdown_utils.py::extract_sections": 6,
+    "src\\validators\\document_validator.py::<genexpr>": 179,
+    "src\\analyzers\\documentation_checker.py::_calculate_doc_score": 1,
+    "src\\analyzers\\documentation_checker.py::<genexpr>": 4,
+    "src\\analyzers\\file_size_analyzer.py::check_file_sizes": 1,
+    "src\\utils\\line_counter.py::count_lines": 67,
+    "src\\analyzers\\docstring_analyzer.py::analyze_project_docstrings": 1,
+    "src\\analyzers\\docstring_analyzer.py::check_docstrings": 67,
+    "src\\parsers\\python_parser.py::parse_python_file": 134,
+    "src\\parsers\\python_parser.py::get_module_docstring": 67,
+    "src\\parsers\\python_parser.py::extract_functions": 134,
+    "src\\analyzers\\docstring_analyzer.py::_should_check_function": 188,
+    "src\\parsers\\python_parser.py::extract_classes": 134,
+    "src\\analyzers\\docstring_analyzer.py::_should_check_method": 46,
+    "src\\validators\\naming_validator.py::analyze_project_naming": 1,
+    "src\\validators\\naming_validator.py::validate_naming_conventions": 67,
+    "src\\validators\\naming_validator.py::is_snake_case": 224,
+    "src\\validators\\naming_validator.py::is_pascal_case": 15,
+    "src\\analyzers\\test_analyzer.py::evaluate_tests": 1,
+    "src\\utils\\file_finder.py::find_test_files": 1,
+    "src\\analyzers\\test_counter.py::analyze_test_file": 9,
+    "src\\analyzers\\test_counter.py::count_python_tests": 9,
+    "src\\analyzers\\test_analyzer.py::_calculate_test_score": 1,
+    "src\\analyzers\\git_analyzer.py::assess_git_workflow": 1,
+    "src\\utils\\git_commands.py::check_git_repo": 1,
+    "src\\utils\\git_commands.py::get_commit_history": 1,
+    "src\\analyzers\\git_analyzer.py::<genexpr>": 8,
+    "src\\utils\\git_commands.py::message_length": 50,
+    "src\\utils\\git_commands.py::is_meaningful": 50,
+    "src\\utils\\git_commands.py::<genexpr>": 329,
+    "src\\analyzers\\git_analyzer.py::_calculate_git_score": 1,
+    "src\\analyzers\\research_analyzer.py::evaluate_research_quality": 1,
+    "src\\analyzers\\research_analyzer.py::find_research_documents": 1,
+    "src\\utils\\file_finder.py::find_markdown_files": 1,
+    "src\\analyzers\\research_analyzer.py::find_parameter_files": 1,
+    "src\\analyzers\\research_analyzer.py::find_analysis_scripts": 1,
+    "src\\analyzers\\ux_analyzer.py::evaluate_ux_quality": 1,
+    "src\\validators\\readme_validator.py::check_readme_usability": 1,
+    "src\\validators\\readme_validator.py::<genexpr>": 43,
+    "src\\analyzers\\ux_analyzer.py::check_cli_help": 1,
+    "src\\analyzers\\ux_analyzer.py::_build_ux_message": 1,
+    "src\\utils\\execution_tracer.py::stop": 1
+  }
+}

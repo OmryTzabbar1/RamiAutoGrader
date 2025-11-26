@@ -1,0 +1,3 @@
+name: track-usage
+description: Track all file and module usage during grading to identify unused code
+version: 1.0.0
