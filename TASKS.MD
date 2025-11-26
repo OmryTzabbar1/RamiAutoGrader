@@ -746,9 +746,99 @@ This document provides a comprehensive, prioritized breakdown of all tasks requi
 
 ---
 
-### P3.11: /grade-github-project Skill [P0]
+### P3.11: Convert Skills and Agent to Claude Code Format [P0] 🔴 IN PROGRESS
 
-**Dependencies**: [P3.10] (Orchestrator Agent)
+**Dependencies**: All existing Python-based skills (check-security, analyze-code, validate-docs, evaluate-tests, assess-git, grade-research, check-ux) and orchestrator
+
+**CRITICAL**: This task converts the existing Python-based implementation to proper Claude Code skills (Markdown SKILL.md format) and agent (agent.md format).
+
+**Tasks:**
+
+- [x] **P3.11.1**: Research Claude Code skill and agent format
+  - Used claude-code-guide task to understand proper format
+  - Skills use Markdown with YAML frontmatter + instructions
+  - Agents use agent.md with orchestration workflow
+  - **Acceptance**: Clear understanding of required format
+
+- [x] **P3.11.2**: Create .claude directory structure
+  - Created `.claude/skills/` directory
+  - Created `.claude/agents/` directory
+  - **Acceptance**: Directory structure ready for skills and agents
+
+- [ ] **P3.11.3**: Convert /check-security to Claude Code skill
+  - Create `.claude/skills/check-security/SKILL.md`
+  - Write Markdown instructions using Claude's built-in tools (Read, Glob, Grep, Bash)
+  - Reference existing `src/analyzers/security_scanner.py` as helper script
+  - Test with `/skill check-security` command
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.4**: Convert /analyze-code to Claude Code skill
+  - Create `.claude/skills/analyze-code/SKILL.md`
+  - Reference analyzers: file_size_analyzer, docstring_analyzer, naming_validator
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.5**: Convert /validate-docs to Claude Code skill
+  - Create `.claude/skills/validate-docs/SKILL.md`
+  - Reference validators: document_validator, readme_validator
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.6**: Convert /evaluate-tests to Claude Code skill
+  - Create `.claude/skills/evaluate-tests/SKILL.md`
+  - Reference analyzer: test_analyzer
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.7**: Convert /assess-git to Claude Code skill
+  - Create `.claude/skills/assess-git/SKILL.md`
+  - Reference analyzer: git_analyzer
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.8**: Convert /grade-research to Claude Code skill
+  - Create `.claude/skills/grade-research/SKILL.md`
+  - Reference analyzer: research_analyzer
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.9**: Convert /check-ux to Claude Code skill
+  - Create `.claude/skills/check-ux/SKILL.md`
+  - Reference analyzer: ux_analyzer
+  - **Acceptance**: Skill works in Claude Code format
+
+- [ ] **P3.11.10**: Convert orchestrator to Claude Code agent
+  - Create `.claude/agents/grade-project/agent.md`
+  - Define workflow for invoking all 7 skills
+  - Implement result aggregation logic
+  - Use existing `src/core/skill_executor.py` and `grading_utils.py` as helpers
+  - **Acceptance**: Agent works via Claude Code
+
+- [ ] **P3.11.11**: Test all converted skills
+  - Test each skill individually with sample projects
+  - Verify Python helper integration works
+  - Ensure all skills produce correct results
+  - **Acceptance**: All 7 skills working correctly
+
+- [ ] **P3.11.12**: Test agent orchestration
+  - Test agent invocation
+  - Verify agent calls all skills correctly
+  - Test result aggregation
+  - Test report generation
+  - **Acceptance**: Agent successfully orchestrates all skills
+
+- [ ] **P3.11.13**: Document conversion in prompts/
+  - Create `prompts/architecture/004-claude-code-conversion.md`
+  - Document lessons learned from conversion
+  - Document skill vs Python script architecture
+  - **Acceptance**: Conversion documented
+
+- [ ] **P3.11.14**: Update documentation
+  - Update README with Claude Code skill usage
+  - Update installation instructions
+  - Add examples of skill invocation
+  - **Acceptance**: Documentation reflects Claude Code format
+
+---
+
+### P3.12: /grade-github-project Skill [P0]
+
+**Dependencies**: [P3.11] (Converted Claude Code Agent)
 
 **Purpose**: Fetch a project from GitHub and automatically grade it using the orchestrator agent.
 
