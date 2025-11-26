@@ -49,6 +49,10 @@ def scan_for_secrets(
         if file_path.endswith('.env.example'):
             continue
 
+        # Skip test fixtures (they contain intentional test data)
+        if '/fixtures/' in file_path.replace('\\', '/') or '\\fixtures\\' in file_path:
+            continue
+
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 lines = f.readlines()
