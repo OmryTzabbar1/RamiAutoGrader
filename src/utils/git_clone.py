@@ -17,7 +17,7 @@ def clone_repository(
     repo_url: str,
     target_dir: Optional[str] = None,
     branch: Optional[str] = None,
-    depth: int = 1
+    depth: Optional[int] = None
 ) -> Dict:
     """
     Clone a Git repository to a target directory.
@@ -26,7 +26,7 @@ def clone_repository(
         repo_url: Git repository URL (HTTPS or SSH)
         target_dir: Directory to clone into (creates temp if None)
         branch: Branch to clone (default branch if None)
-        depth: Clone depth (1 for shallow clone, None for full)
+        depth: Clone depth (None for full clone, 1 for shallow - default: None for grading)
 
     Returns:
         dict: {

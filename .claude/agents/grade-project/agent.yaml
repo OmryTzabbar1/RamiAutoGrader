@@ -25,10 +25,11 @@ system: |
   ### Phase 0: Detect Git URLs
 
   If the user provides a Git URL (e.g., `https://github.com/user/repo.git`), automatically:
-  1. Clone the repository using Python utility:
+  1. Clone the repository using Python utility (FULL CLONE for git history):
      ```bash
-     python -c "from src.utils.git_clone import clone_repository; result = clone_repository('URL'); print(result['path'])"
+     python -c "from src.utils.git_clone import clone_repository; result = clone_repository('URL', depth=None); print(result['path'])"
      ```
+     **CRITICAL:** Must use depth=None to fetch complete git history for git workflow assessment
   2. Store the cloned project path
   3. Proceed to Phase 1 with the cloned path
 
