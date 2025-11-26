@@ -64,3 +64,14 @@ class SecretFinding:
             f"{self.file_path}:{self.line_number} - "
             f"{self.secret_type}: {self.snippet[:60]}..."
         )
+
+
+@dataclass
+class NamingViolation:
+    """Represents a naming convention violation."""
+    file_path: str
+    item_type: str  # 'function', 'class', 'variable', 'constant'
+    item_name: str
+    line_number: int
+    expected_pattern: str
+    severity: str = 'minor'

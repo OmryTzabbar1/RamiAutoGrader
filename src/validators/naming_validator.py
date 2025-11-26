@@ -9,21 +9,10 @@ Validates Python naming conventions:
 """
 
 import re
-from typing import List, Dict
-from dataclasses import dataclass
+from typing import Dict
 
 from ..parsers.python_parser import parse_python_file, extract_functions, extract_classes
-
-
-@dataclass
-class NamingViolation:
-    """Represents a naming convention violation."""
-    file_path: str
-    item_type: str  # 'function', 'class', 'variable', 'constant'
-    item_name: str
-    line_number: int
-    expected_pattern: str
-    severity: str = 'minor'
+from ..models.code_models import NamingViolation
 
 
 # Naming patterns
