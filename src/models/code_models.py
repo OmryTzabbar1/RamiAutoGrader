@@ -39,3 +39,28 @@ class ClassInfo:
     has_docstring: bool
     docstring: Optional[str]
     methods: List[FunctionInfo]
+
+
+@dataclass
+class SecretFinding:
+    """
+    Represents a detected secret in code.
+
+    Attributes:
+        secret_type: Type of secret (e.g., 'api_key', 'password')
+        file_path: File containing the secret
+        line_number: Line number where secret was found
+        snippet: Code snippet showing the secret (truncated)
+        severity: Always 'critical' for secrets
+    """
+    secret_type: str
+    file_path: str
+    line_number: int
+    snippet: str
+    severity: str = 'critical'
+
+    def __str__(self) -> str:
+        return (
+            f"{self.file_path}:{self.line_number} - "
+            f"{self.secret_type}: {self.snippet[:60]}..."
+        )
