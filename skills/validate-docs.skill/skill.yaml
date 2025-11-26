@@ -1,0 +1,35 @@
+name: validate-docs
+description: |
+  Validates required documentation for academic software projects.
+
+  Checks for:
+  - Existence of required documents (README, PRD, PLANNING, TASKS, CLAUDE.md)
+  - Required sections in each document
+  - Minimum word counts
+  - Documentation completeness
+
+  Returns a score out of 25 points (documentation category weight).
+
+version: 1.0.0
+author: Auto-Grader System
+
+entry_point: main.py
+
+requirements:
+  - Python 3.8+
+
+usage: |
+  # Validate documentation in a project
+  python main.py /path/to/project
+
+  # Output as JSON
+  python main.py /path/to/project --json
+
+examples:
+  - name: Basic validation
+    command: python main.py ../my-project
+    description: Validates all required documentation in the project
+
+  - name: JSON output
+    command: python main.py ../my-project --json
+    description: Returns validation results as JSON
