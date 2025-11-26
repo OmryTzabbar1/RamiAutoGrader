@@ -1,0 +1,36 @@
+name: assess-git
+description: |
+  Assesses git workflow quality for academic software projects.
+
+  Checks for:
+  - Minimum number of commits (10+)
+  - Commit message quality
+  - Meaningful commit messages (not "update", "fix", etc.)
+  - Development progression
+
+  Returns a score out of 10 points (git workflow category weight).
+
+version: 1.0.0
+author: Auto-Grader System
+
+entry_point: main.py
+
+requirements:
+  - Python 3.8+
+  - Git installed
+
+usage: |
+  # Assess git workflow in a project
+  python main.py /path/to/project
+
+  # Output as JSON
+  python main.py /path/to/project --json
+
+examples:
+  - name: Basic assessment
+    command: python main.py ../my-project
+    description: Assesses git workflow in the project
+
+  - name: JSON output
+    command: python main.py ../my-project --json
+    description: Returns assessment results as JSON
