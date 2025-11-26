@@ -75,3 +75,12 @@ class NamingViolation:
     line_number: int
     expected_pattern: str
     severity: str = 'minor'
+
+
+@dataclass
+class DocumentIssue:
+    """Represents a documentation issue."""
+    doc_name: str
+    issue_type: str  # 'missing', 'missing_section', 'too_short'
+    details: str
+    severity: str = 'major'
