@@ -11,7 +11,6 @@ Delegates to:
 """
 
 import sys
-import os
 import json
 from pathlib import Path
 
@@ -21,6 +20,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.analyzers.file_size_analyzer import check_file_sizes, generate_size_report
 from src.analyzers.docstring_analyzer import analyze_project_docstrings
 from src.validators.naming_validator import analyze_project_naming
+from .display_formatter import (
+    display_header, display_file_size_results,
+    display_docstring_results, display_naming_results, display_summary
+)
 
 
 def analyze_code(project_path: str, language: str = 'python') -> dict:
@@ -38,67 +41,37 @@ def analyze_code(project_path: str, language: str = 'python') -> dict:
         >>> result = analyze_code('/path/to/project')
         >>> print(f"Code Quality Score: {result['score']}/30")
     """
-    print(f"[*] Code Quality Analysis: {project_path}")
-    print("=" * 60)
+    display_header(project_path)
 
     results = {}
     max_score = 30
     score = max_score
 
     # 1. CRITICAL: Check file size limits (150 lines max)
-    print("\n[*] Checking file size limits (150 lines max)...")
     size_violations = check_file_sizes(project_path, limit=150)
+    display_file_size_results(size_violations)
 
     if size_violations:
-        print(f"\n[X] CRITICAL: {len(size_violations)} file(s) exceed 150-line limit!")
-        for v in size_violations[:5]:  # Show first 5
-            print(f"   {v}")
-        if len(size_violations) > 5:
-            print(f"   ... and {len(size_violations) - 5} more")
-
-        # Heavy penalty for oversized files
-        score -= len(size_violations) * 5
-    else:
-        print("[+] All files within 150-line limit")
+        score -= len(size_violations) * 5  # Heavy penalty for oversized files
 
     results['file_size'] = generate_size_report(size_violations)
 
     # 2. Check docstring coverage (90% target)
-    print("\n[*] Analyzing docstring coverage (90% target)...")
     docstring_result = analyze_project_docstrings(project_path, min_coverage=0.9)
+    display_docstring_results(docstring_result)
 
-    coverage_pct = docstring_result['coverage'] * 100
-    if docstring_result['passed']:
-        print(f"[+] Docstring coverage: {coverage_pct:.1f}% (PASSED)")
-    else:
-        print(f"[!] Docstring coverage: {coverage_pct:.1f}% (target: 90%)")
-        print(f"   Missing {docstring_result['missing']} docstrings")
-
-        # Show some examples
-        for v in docstring_result['violations'][:3]:
-            print(f"   - {v.item_type} '{v.item_name}' in {v.file_path}:{v.line_number}")
-
-        # Penalty based on how far from target
+    if not docstring_result['passed']:
         coverage_gap = 0.9 - docstring_result['coverage']
         score -= coverage_gap * 20  # Up to 20 points penalty
 
     results['docstrings'] = docstring_result
 
     # 3. Check naming conventions
-    print("\n[*] Validating naming conventions...")
     naming_result = analyze_project_naming(project_path)
+    display_naming_results(naming_result)
 
-    if naming_result['passed']:
-        print("[+] All naming conventions followed")
-    else:
-        print(f"[!] Found {len(naming_result['violations'])} naming violations")
-
-        # Show examples
-        for v in naming_result['violations'][:3]:
-            print(f"   - {v.item_type} '{v.item_name}' should use {v.expected_pattern}")
-
-        # Minor penalty for naming
-        score -= len(naming_result['violations']) * 0.5
+    if not naming_result['passed']:
+        score -= len(naming_result['violations']) * 0.5  # Minor penalty
 
     results['naming'] = naming_result
 
@@ -106,15 +79,7 @@ def analyze_code(project_path: str, language: str = 'python') -> dict:
     score = max(0, min(score, max_score))  # Clamp to [0, max_score]
 
     # 5. Display summary
-    print("\n" + "=" * 60)
-    print(f"Code Quality Score: {score:.1f}/{max_score}")
-
-    if score >= 27:  # 90%
-        print("[+] EXCELLENT - High quality code")
-    elif score >= 21:  # 70%
-        print("[+] PASSED - Acceptable code quality")
-    else:
-        print("[X] FAILED - Significant quality issues")
+    display_summary(score, max_score)
 
     return {
         'score': score,
