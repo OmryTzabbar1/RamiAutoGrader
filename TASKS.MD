@@ -1200,9 +1200,300 @@ This document provides a comprehensive, prioritized breakdown of all tasks requi
 
 ---
 
+## Phase 7: Architecture Refactoring & Code Cleanup
+
+**Goal**: Refactor codebase to align with new agent-based architecture (individual skills vs monolithic scripts)
+
+**Context**: After implementing parallel skill orchestration in the agent, several Python scripts and modules are now redundant. The agent calls individual skills directly instead of using orchestration scripts.
+
+---
+
+### P7.1: Audit & Dependency Mapping [P0]
+
+**Tasks:**
+
+- [ ] **P7.1.1**: Map all module dependencies
+  - Create dependency graph showing what imports what
+  - Identify entry points (skills, agent, CLI scripts)
+  - Document which files are called by the agent vs which are legacy
+  - **Acceptance**: Dependency map created in `docs/architecture/dependency-map.md`
+  - **Estimated Time**: 1-2 hours
+
+- [ ] **P7.1.2**: Identify unused code after architecture change
+  - Check if `grade_from_git.py` is still needed (agent clones + calls skills)
+  - Check if `grade_project.py` is still needed (agent orchestrates skills)
+  - Check if `benchmark_performance.py` is still needed (useful for testing?)
+  - Check if `skill_executor.py` and `skill_executor_optimized.py` are still needed
+  - Check if `project_cache.py` is still needed
+  - Check if `src/cli/arg_parser.py` is still needed
+  - **Acceptance**: Document listing unused vs used files in `docs/architecture/unused-code-audit.md`
+  - **Estimated Time**: 2-3 hours
+
+- [ ] **P7.1.3**: Verify all individual skills work independently
+  - Test each skill can be invoked standalone via `/skill <name>`
+  - Verify no dependencies on orchestration scripts
+  - Confirm skills only depend on src/analyzers, src/validators, src/utils
+  - **Acceptance**: All 7 skills tested and working independently
+  - **Estimated Time**: 1 hour
+
+---
+
+### P7.2: Remove Legacy Orchestration Code [P0]
+
+**Decision Point**: Remove or archive? (Recommend: move to `legacy/` folder for reference)
+
+**Tasks:**
+
+- [ ] **P7.2.1**: Handle `grade_from_git.py`
+  - **Analysis**: Agent now uses `clone_repository()` utility + individual skills
+  - **Decision**: Archive or remove?
+  - **Action**: If archive: `mkdir legacy/ && git mv grade_from_git.py legacy/`
+  - **Acceptance**: File removed from root or moved to legacy/
+  - **Estimated Time**: 15 minutes
+
+- [ ] **P7.2.2**: Handle `grade_project.py`
+  - **Analysis**: Agent now orchestrates individual skills directly
+  - **Decision**: Archive or remove?
+  - **Action**: If archive: `git mv grade_project.py legacy/`
+  - **Acceptance**: File removed from root or moved to legacy/
+  - **Estimated Time**: 15 minutes
+
+- [ ] **P7.2.3**: Handle `benchmark_performance.py`
+  - **Analysis**: Useful for performance testing, but uses legacy executors
+  - **Decision**: Keep but refactor to use agent? Or archive?
+  - **Action**: Decide and document reasoning
+  - **Acceptance**: Decision documented with justification
+  - **Estimated Time**: 30 minutes
+
+- [ ] **P7.2.4**: Handle `src/core/skill_executor.py` (sequential)
+  - **Analysis**: Agent calls skills directly, not via Python executor
+  - **Decision**: Archive or remove?
+  - **Action**: If archive: `git mv src/core/skill_executor.py legacy/`
+  - **Acceptance**: File removed or moved to legacy/
+  - **Estimated Time**: 15 minutes
+
+- [ ] **P7.2.5**: Handle `src/core/skill_executor_optimized.py` (parallel)
+  - **Analysis**: Agent calls skills directly with parallel invocation
+  - **Decision**: Archive or remove?
+  - **Note**: This is 209 lines (violates 150-line limit anyway)
+  - **Action**: If archive: `git mv src/core/skill_executor_optimized.py legacy/`
+  - **Acceptance**: File removed or moved to legacy/
+  - **Estimated Time**: 15 minutes
+
+- [ ] **P7.2.6**: Handle `src/core/project_cache.py`
+  - **Analysis**: Only used by skill_executor_optimized.py
+  - **Decision**: If executor is removed, this should be too
+  - **Note**: This is 162 lines (violates 150-line limit anyway)
+  - **Action**: Remove if executor is removed
+  - **Acceptance**: File removed or moved to legacy/
+  - **Estimated Time**: 15 minutes
+
+- [ ] **P7.2.7**: Handle `src/cli/arg_parser.py`
+  - **Analysis**: Only used by grade_from_git.py and grade_project.py
+  - **Decision**: Remove if those scripts are removed
+  - **Action**: Check usage, then remove or archive
+  - **Acceptance**: File removed or moved to legacy/
+  - **Estimated Time**: 15 minutes
+
+---
+
+### P7.3: Refactor Oversized Files [P0 - CRITICAL]
+
+**Context**: 5 files currently exceed 150-line limit (fails grading)
+
+**Tasks:**
+
+- [ ] **P7.3.1**: Refactor `src/reporters/detailed_reporter.py` (298 lines)
+  - **Target**: <150 lines
+  - **Strategy**: Split into 3 modules:
+    ```
+    src/reporters/
+    ├── detailed_reporter.py        # Main orchestration (~100 lines)
+    ├── report_formatters.py        # Formatting logic (~95 lines)
+    └── report_templates.py         # Templates & constants (~100 lines)
+    ```
+  - **Acceptance**: All 3 files <150 lines, tests pass, functionality preserved
+  - **Estimated Time**: 2-3 hours
+  - **Impact**: +3 points on grading (currently -3 for violation)
+
+- [ ] **P7.3.2**: Refactor `src/core/skill_executor_optimized.py` (209 lines)
+  - **DECISION GATE**: Only if keeping this file (not archiving)
+  - **Target**: <150 lines
+  - **Strategy**: Split into 2 modules:
+    ```
+    src/core/
+    ├── parallel_executor.py        # Parallel execution (~105 lines)
+    └── result_aggregator.py        # Result aggregation (~104 lines)
+    ```
+  - **Acceptance**: Both files <150 lines, tests pass
+  - **Estimated Time**: 2-3 hours
+  - **Impact**: +3 points on grading (if keeping file)
+
+- [ ] **P7.3.3**: Refactor `grade_project.py` (163 lines)
+  - **DECISION GATE**: Only if keeping this file (likely archive instead)
+  - **Target**: <150 lines
+  - **Alternative**: Archive to legacy/ (recommended)
+  - **Acceptance**: File <150 lines OR moved to legacy/
+  - **Estimated Time**: 15 min (archive) or 2 hours (refactor)
+  - **Impact**: +3 points on grading
+
+- [ ] **P7.3.4**: Refactor `src/core/project_cache.py` (162 lines)
+  - **DECISION GATE**: Only if keeping this file (likely archive if executor is archived)
+  - **Target**: <150 lines
+  - **Alternative**: Archive to legacy/ (recommended)
+  - **Acceptance**: File <150 lines OR moved to legacy/
+  - **Estimated Time**: 15 min (archive) or 1-2 hours (refactor)
+  - **Impact**: +2 points on grading
+
+- [ ] **P7.3.5**: Refactor `grade_from_git.py` (152 lines)
+  - **DECISION GATE**: Only if keeping this file (likely archive instead)
+  - **Target**: <150 lines (just 2 lines over)
+  - **Alternative**: Archive to legacy/ (recommended)
+  - **Acceptance**: File <150 lines OR moved to legacy/
+  - **Estimated Time**: 15 min (archive) or 30 min (refactor)
+  - **Impact**: +2 points on grading
+
+---
+
+### P7.4: Update Documentation [P0]
+
+**Tasks:**
+
+- [ ] **P7.4.1**: Update README.md to reflect new architecture
+  - Remove references to `grade_project.py` and `grade_from_git.py`
+  - Update usage examples to show agent invocation
+  - Document individual skill usage
+  - **Acceptance**: README accurately describes current architecture
+  - **Estimated Time**: 1 hour
+
+- [ ] **P7.4.2**: Update CLAUDE.md if needed
+  - Verify guidelines match current architecture
+  - Update examples to use agent + skills (not scripts)
+  - **Acceptance**: CLAUDE.md reflects current practices
+  - **Estimated Time**: 30 minutes
+
+- [ ] **P7.4.3**: Update PLANNING.md
+  - Add "Technical Decisions" section (missing, -5 points)
+  - Document decision to move from scripts to agent orchestration
+  - Document decision to archive vs remove legacy code
+  - **Acceptance**: PLANNING.md has Technical Decisions section
+  - **Estimated Time**: 1 hour
+  - **Impact**: +5 points on grading
+
+- [ ] **P7.4.4**: Create architecture diagram
+  - Show new flow: Agent → Individual Skills
+  - Show legacy flow: Scripts → Executors (archived)
+  - Create before/after comparison
+  - **Acceptance**: Diagram saved to `docs/architecture/before-after-refactor.md`
+  - **Estimated Time**: 1 hour
+
+---
+
+### P7.5: Testing & Validation [P0]
+
+**Tasks:**
+
+- [ ] **P7.5.1**: Update integration tests
+  - Remove tests that test archived scripts
+  - Add tests for agent orchestration flow
+  - Verify all individual skills still tested
+  - **Acceptance**: All tests pass, coverage maintained
+  - **Estimated Time**: 2-3 hours
+
+- [ ] **P7.5.2**: Test agent end-to-end
+  - Clone repository via agent
+  - Verify all 7 skills called in parallel
+  - Verify results aggregated correctly
+  - Test with multiple repositories
+  - **Acceptance**: Agent successfully grades 3+ different repos
+  - **Estimated Time**: 1-2 hours
+
+- [ ] **P7.5.3**: Run self-grading
+  - Grade the refactored codebase
+  - Verify file size violations reduced (5 → 1 or 0)
+  - Verify all tests pass
+  - **Acceptance**: Score improves by +13-15 points (from 66 to 79-81)
+  - **Estimated Time**: 30 minutes
+
+---
+
+### P7.6: Git Workflow & Commits [P0]
+
+**Tasks:**
+
+- [ ] **P7.6.1**: Create feature branch
+  - `git checkout -b refactor/architecture-cleanup`
+  - **Acceptance**: Branch created
+  - **Estimated Time**: 1 minute
+
+- [ ] **P7.6.2**: Make atomic commits for each refactoring
+  - Commit after each P7.2.x task (archiving files)
+  - Commit after each P7.3.x task (refactoring files)
+  - Commit after each P7.4.x task (updating docs)
+  - **Format**: `refactor(core): Archive skill_executor.py [P7.2.4]`
+  - **Acceptance**: 15-20 commits showing clear progression
+  - **Estimated Time**: Built into other tasks
+  - **Impact**: Improves git workflow score
+
+- [ ] **P7.6.3**: Create pull request
+  - Summarize all changes
+  - Document decisions made (archive vs remove)
+  - Show before/after metrics (file count, file sizes, test coverage)
+  - **Acceptance**: PR created with comprehensive description
+  - **Estimated Time**: 30 minutes
+
+- [ ] **P7.6.4**: Merge and tag release
+  - Merge PR to main
+  - Tag as v2.0.0 (major architecture change)
+  - **Acceptance**: Tagged release exists
+  - **Estimated Time**: 15 minutes
+
+---
+
+### P7.7: Performance Validation [P1]
+
+**Tasks:**
+
+- [ ] **P7.7.1**: Benchmark agent performance
+  - Measure grading time with new architecture
+  - Compare to old architecture (if possible)
+  - **Target**: Still ~4-7 seconds with parallel skills
+  - **Acceptance**: Performance documented, meets target
+  - **Estimated Time**: 1 hour
+
+- [ ] **P7.7.2**: Update PERFORMANCE_OPTIMIZATION.md
+  - Document new architecture performance
+  - Update benchmarks and metrics
+  - **Acceptance**: Performance doc reflects current system
+  - **Estimated Time**: 30 minutes
+
+---
+
+## Summary of Phase 7
+
+**Total Tasks**: 27 tasks
+**Priority**: [P0] Must-Have (24 tasks), [P1] Should-Have (3 tasks)
+**Estimated Time**: 20-30 hours total
+**Impact on Grading**:
+- File size violations: +13-15 points (if all refactored)
+- Documentation: +5 points (Technical Decisions section)
+- Git workflow: +5 points (atomic commits showing progression)
+- **Total Potential**: +23-25 points (66 → 89-91, reaching A- grade)
+
+**Critical Path**:
+1. P7.1 (Audit) → P7.2 (Archive) → P7.3 (Refactor) → P7.4 (Document) → P7.5 (Test)
+
+**Quick Win Strategy**:
+- Start with P7.2 (archiving) - removes 4 file size violations in 2 hours
+- Then P7.3.1 (refactor detailed_reporter.py) - fixes last violation
+- Then P7.4.3 (add Technical Decisions) - quick +5 points
+- **Result**: 66 → 81 in ~4-5 hours
+
+---
+
 ## Summary Statistics
 
-**Total Tasks**: 222+
+**Total Tasks**: 249+
 
 **Breakdown by Phase**:
 - Phase 1 (Setup): 5 tasks
@@ -1214,10 +1505,11 @@ This document provides a comprehensive, prioritized breakdown of all tasks requi
 - Phase 4 (Testing): 15 tasks
 - Phase 5 (Documentation): 15 tasks
 - Phase 6 (Post-Launch): 10 tasks
+- **Phase 7 (Architecture Refactoring): 27 tasks** ⚡ NEW
 
 **Breakdown by Priority**:
-- **[P0] Must-Have**: ~103 tasks (Phases 1-3 core skills + orchestrator agent + GitHub skill)
-- **[P1] Should-Have**: ~30 tasks (Advanced skills, benchmarking)
+- **[P0] Must-Have**: ~127 tasks (Phases 1-3 core skills + Phase 7 refactoring)
+- **[P1] Should-Have**: ~33 tasks (Advanced skills, benchmarking, performance validation)
 - **[P2] Nice-to-Have**: ~15 tasks (Batch processing, monitoring)
 
 **Estimated Completion Checkpoints**:
