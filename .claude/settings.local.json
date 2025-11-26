@@ -9,7 +9,12 @@
       "Bash(git commit:*)",
       "Bash(python:*)",
       "Bash(git push:*)",
-      "Bash(git rev-list:*)"
+      "Bash(git rev-list:*)",
+      "Skill(grade-from-git)",
+      "Bash(git clone:*)",
+      "Bash(git -C /c/Users/Guest1/CoOp/RamiAutoGrader/temp_grading rev-parse:*)",
+      "Bash(git -C /c/Users/Guest1/CoOp/RamiAutoGrader/temp_grading log --oneline)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

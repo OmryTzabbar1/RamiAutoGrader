@@ -56,6 +56,7 @@ grading_reports/
 *.log
 temp/
 tmp/
+temp_grading/
 
 # OS
 Thumbs.db
