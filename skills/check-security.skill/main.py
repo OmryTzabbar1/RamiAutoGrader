@@ -18,11 +18,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.analyzers.security_scanner import scan_for_secrets
-from src.validators.security_validator import (
-    validate_gitignore,
-    check_env_template,
-    generate_security_report
-)
+from src.validators.gitignore_validator import validate_gitignore
+from src.validators.env_validator import check_env_template
+from src.reporters.security_reporter import generate_security_report
 
 
 def check_security(project_path: str, fail_on_secrets: bool = True) -> dict:
