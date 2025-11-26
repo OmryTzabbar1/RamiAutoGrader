@@ -22,6 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.skill_executor import run_all_skills
+from src.core.skill_executor_optimized import run_all_skills_parallel
 from src.core.grading_utils import format_results_summary
 
 
@@ -77,6 +78,34 @@ Grading Scale:
         help='Show detailed output from each skill'
     )
 
+    parser.add_argument(
+        '--parallel',
+        '-p',
+        action='store_true',
+        default=True,
+        help='Use parallel execution for faster grading (default: enabled)'
+    )
+
+    parser.add_argument(
+        '--sequential',
+        action='store_true',
+        help='Use sequential execution (slower, for debugging)'
+    )
+
+    parser.add_argument(
+        '--workers',
+        '-w',
+        type=int,
+        default=4,
+        help='Number of parallel workers (default: 4)'
+    )
+
+    parser.add_argument(
+        '--no-early-exit',
+        action='store_true',
+        help='Disable early exit on critical failures'
+    )
+
     args = parser.parse_args()
 
     # Run all grading skills
@@ -84,7 +113,17 @@ Grading Scale:
     print("ACADEMIC SOFTWARE AUTO-GRADER")
     print("=" * 60 + "\n")
 
-    results = run_all_skills(args.project_path)
+    # Choose execution mode
+    if args.sequential:
+        print("[*] Running in SEQUENTIAL mode (slower)")
+        results = run_all_skills(args.project_path)
+    else:
+        print(f"[*] Running in PARALLEL mode ({args.workers} workers)")
+        results = run_all_skills_parallel(
+            args.project_path,
+            max_workers=args.workers,
+            enable_early_exit=not args.no_early_exit
+        )
 
     # Display summary
     print("\n" + format_results_summary(results))

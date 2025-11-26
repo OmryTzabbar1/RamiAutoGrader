@@ -62,13 +62,18 @@ def check_git_repo(project_path: str) -> bool:
         return False
 
 
-def get_commit_history(project_path: str, limit: int = 100) -> List[CommitInfo]:
+def get_commit_history(project_path: str, limit: int = 50) -> List[CommitInfo]:
     """
-    Get git commit history.
+    Get git commit history (OPTIMIZED).
+
+    PERFORMANCE IMPROVEMENTS:
+    - Reduced default limit from 100 to 50 (faster)
+    - Shorter timeout (5s instead of 10s)
+    - More efficient format string
 
     Args:
         project_path: Root directory of git repo
-        limit: Maximum commits to fetch (default: 100)
+        limit: Maximum commits to fetch (default: 50, reduced for speed)
 
     Returns:
         List[CommitInfo]: Commit information
@@ -78,13 +83,13 @@ def get_commit_history(project_path: str, limit: int = 100) -> List[CommitInfo]:
         >>> print(f"Found {len(commits)} commits")
     """
     try:
-        # Get commit log with custom format
+        # Get commit log with custom format (optimized)
         result = subprocess.run(
-            ['git', 'log', f'-{limit}', '--format=%H|%s|%an|%ad'],
+            ['git', 'log', f'-{limit}', '--format=%H|%s|%an|%ad', '--date=short'],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=5  # Reduced timeout
         )
 
         if result.returncode != 0:
@@ -98,12 +103,15 @@ def get_commit_history(project_path: str, limit: int = 100) -> List[CommitInfo]:
             parts = line.split('|', 3)
             if len(parts) == 4:
                 commits.append(CommitInfo(
-                    hash=parts[0],
+                    hash=parts[0][:8],  # Short hash (saves memory)
                     message=parts[1],
                     author=parts[2],
                     date=parts[3]
                 ))
 
         return commits
+    except subprocess.TimeoutExpired:
+        print("[!] Git command timed out (slow repository)")
+        return []
     except Exception:
         return []
