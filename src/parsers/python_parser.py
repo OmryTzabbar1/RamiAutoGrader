@@ -8,29 +8,9 @@ Design Decision: Use built-in AST module for accuracy and no external dependenci
 """
 
 import ast
-from typing import List, Dict, Optional
-from dataclasses import dataclass
+from typing import List, Optional
 
-
-@dataclass
-class FunctionInfo:
-    """Information about a function definition."""
-    name: str
-    line_number: int
-    has_docstring: bool
-    docstring: Optional[str]
-    num_params: int
-    is_method: bool = False
-
-
-@dataclass
-class ClassInfo:
-    """Information about a class definition."""
-    name: str
-    line_number: int
-    has_docstring: bool
-    docstring: Optional[str]
-    methods: List[FunctionInfo]
+from ..models.code_models import FunctionInfo, ClassInfo
 
 
 def parse_python_file(file_path: str) -> Optional[ast.AST]:
