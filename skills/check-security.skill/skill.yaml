@@ -1,0 +1,26 @@
+name: check-security
+description: Scans project for security vulnerabilities and hardcoded secrets
+version: 1.0.0
+author: Auto-Grader System
+
+parameters:
+  - name: project_path
+    description: Path to project directory to scan
+    required: true
+    type: string
+
+  - name: fail_on_secrets
+    description: Fail immediately if secrets are found
+    required: false
+    type: boolean
+    default: true
+
+examples:
+  - description: Scan current project for security issues
+    command: check-security .
+
+  - description: Scan specific project
+    command: check-security /path/to/student/project
+
+  - description: Scan without auto-failing on secrets
+    command: check-security /path/to/project --fail_on_secrets=false

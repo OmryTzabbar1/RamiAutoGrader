@@ -39,6 +39,7 @@ venv.bak/
 # Environment variables
 .env
 *.key
+*.pem
 credentials.json
 secrets.yaml
 
