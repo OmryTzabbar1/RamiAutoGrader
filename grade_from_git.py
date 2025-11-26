@@ -21,11 +21,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.utils.git_clone import clone_repository, cleanup_clone
 from src.utils.git_helpers import is_git_url
 from src.core.skill_executor import run_all_skills
+from src.core.skill_executor_optimized import run_all_skills_parallel
 from src.core.grading_utils import format_results_summary
 from src.cli.arg_parser import create_arg_parser
 
 
-def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True):
+def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True,
+                   use_parallel=True, workers=4):
     """
     Clone a Git repository and grade it.
 
@@ -34,6 +36,8 @@ def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True):
         branch: Branch to clone (optional)
         output_file: Path to save results JSON (optional)
         cleanup: Whether to cleanup after grading
+        use_parallel: Use optimized parallel execution (default: True)
+        workers: Number of parallel workers (default: 4)
 
     Returns:
         dict: Grading results or None on failure
@@ -68,7 +72,12 @@ def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True):
 
     # Grade the repository
     print(f"\n[*] Running auto-grader on {repo_name}...\n")
-    results = run_all_skills(cloned_path)
+    if use_parallel:
+        print(f"[*] Using PARALLEL mode ({workers} workers)")
+        results = run_all_skills_parallel(cloned_path, max_workers=workers)
+    else:
+        print("[*] Using SEQUENTIAL mode")
+        results = run_all_skills(cloned_path)
 
     # Add repository metadata
     results['repository'] = {
@@ -101,6 +110,21 @@ def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True):
 def main():
     """Main entry point."""
     parser = create_arg_parser()
+
+    # Add performance options
+    parser.add_argument(
+        '--sequential',
+        action='store_true',
+        help='Use sequential execution (slower, for debugging)'
+    )
+    parser.add_argument(
+        '--workers',
+        '-w',
+        type=int,
+        default=4,
+        help='Number of parallel workers (default: 4)'
+    )
+
     args = parser.parse_args()
 
     # Run grading
@@ -108,7 +132,9 @@ def main():
         repo_url=args.repo_url,
         branch=args.branch,
         output_file=args.output,
-        cleanup=not args.no_cleanup
+        cleanup=not args.no_cleanup,
+        use_parallel=not args.sequential,
+        workers=args.workers
     )
 
     # JSON output mode
