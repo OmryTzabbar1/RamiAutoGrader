@@ -1,0 +1,26 @@
+name: analyze-code
+description: Analyzes code quality - file sizes, docstrings, naming conventions
+version: 1.0.0
+author: Auto-Grader System
+
+parameters:
+  - name: project_path
+    description: Path to project directory to analyze
+    required: true
+    type: string
+
+  - name: language
+    description: Programming language (python, javascript, typescript)
+    required: false
+    type: string
+    default: python
+
+examples:
+  - description: Analyze Python project
+    command: analyze-code .
+
+  - description: Analyze specific project
+    command: analyze-code /path/to/student/project
+
+  - description: Analyze JavaScript project
+    command: analyze-code /path/to/project --language=javascript
