@@ -1,7 +1,7 @@
 ---
 name: validate-docs
 description: Validates project documentation including PRD, README, PLANNING, TASKS, and architecture docs
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Documentation Validation Skill
@@ -13,6 +13,22 @@ Evaluates documentation quality in academic software projects by checking:
 - Architecture documentation
 
 **Scoring:** 25 points maximum (critical for academic projects)
+
+---
+
+## Strictness Parameter (Optional)
+
+This skill supports **adaptive grading strictness** based on student self-assessment.
+
+**Default**: `strictness = 1.0` (standard grading)
+**Range**: `1.0 to 1.3` (higher = more critical evaluation)
+
+**How strictness affects grading:**
+- **Penalties are multiplied** by strictness value for missing/incomplete docs
+- **Quality requirements are raised** for higher strictness (e.g., more detailed README)
+- **Critical documentation** (PRD, README) carries heavier penalties at higher strictness
+
+**Usage**: If strictness is specified in the grading request, apply it to all penalty calculations.
 
 ## Instructions
 
@@ -41,8 +57,12 @@ ls docs/ADRs/
 ```
 
 **Scoring:**
-- Each missing document: -5 points
-- Missing architecture docs: -3 points
+- Each missing required document (PRD, README, PLANNING, TASKS): `-5 × strictness` points
+  - strictness=1.0: -5 points
+  - strictness=1.3: -6.5 points
+- Missing architecture docs: `-3 × strictness` points
+  - strictness=1.0: -3 points
+  - strictness=1.3: -3.9 points
 
 ### 2. Validate README.md Quality
 
@@ -76,8 +96,12 @@ grep -i "## Installation\|## Usage\|## Examples" README.md
 Manually verify README completeness by reading it.
 
 **Scoring:**
-- Missing README: -10 points (critical)
-- Incomplete README (< 3 sections): -5 points
+- Missing README: `-10 × strictness` points (critical)
+  - strictness=1.0: -10 points
+  - strictness=1.3: -13 points
+- Incomplete README (< 3 sections): `-5 × strictness` points
+  - strictness=1.0: -5 points
+  - strictness=1.3: -6.5 points
 - No code examples: -2 points
 
 ### 3. Validate PRD.md Structure
