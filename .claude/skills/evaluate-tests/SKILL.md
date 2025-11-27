@@ -1,18 +1,39 @@
 ---
 name: evaluate-tests
 description: Evaluates test suite quality including coverage, test count, and edge case handling
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Test Evaluation Skill
 
 Evaluates testing practices in academic software projects by checking:
 - Test file presence and count
-- Test coverage (minimum 70%, target 90% for critical paths)
+- Test coverage (minimum 70%, adjusted by strictness)
 - Edge case documentation
 - Test structure and quality
 
 **Scoring:** 15 points maximum (important for software quality)
+
+---
+
+## Strictness Parameter (Optional)
+
+This skill supports **adaptive grading strictness** based on student self-assessment.
+
+**Default**: `strictness = 1.0` (standard grading)
+**Range**: `1.0 to 1.3` (higher = more critical evaluation)
+
+**How strictness affects grading:**
+- **Penalties are multiplied** by strictness value
+- **Coverage thresholds are raised** for higher strictness
+- **Minimum test count is increased** for higher strictness
+
+**Examples:**
+- Student self-grade = 70  → strictness = 1.21
+- Student self-grade = 85  → strictness = 1.255
+- Student self-grade = 95  → strictness = 1.285
+
+**Usage**: If strictness is specified in the grading request, apply it to all penalty calculations and thresholds.
 
 ## Instructions
 
@@ -41,8 +62,10 @@ find . -path "*/__tests__/*"
 ```
 
 **Scoring:**
-- No test files found: 0 points (auto-fail)
-- Fewer than 5 test files: -5 points
+- No test files found: 0 points (auto-fail, not affected by strictness)
+- Fewer than 5 test files: `-5 × strictness` points
+  - strictness=1.0: -5 points
+  - strictness=1.3: -6.5 points
 
 ### 2. Count Test Cases
 
@@ -60,15 +83,19 @@ grep -r "def test_" tests/ | wc -l
 grep -r "test\|it(" __tests__/ | wc -l
 ```
 
-**Requirements:**
-- Minimum 10 test cases for small projects
-- Minimum 30 test cases for medium projects
-- Minimum 50 test cases for large projects
+**Requirements (adjusted by strictness):**
+- **Minimum test count** (scales with strictness):
+  - strictness=1.0: 10 tests minimum
+  - strictness=1.2: 14 tests minimum (10 + 0.2 × 20)
+  - strictness=1.3: 16 tests minimum (10 + 0.3 × 20)
+  - Formula: `min_tests = 10 + (strictness - 1.0) × 20`
 
 **Scoring:**
-- < 10 tests: -3 points
-- 10-29 tests: -1 point
-- ≥ 30 tests: full points
+- < min_tests: `-3 × strictness` points
+  - Example: strictness=1.3, min=16 tests, actual=12 tests → -3.9 points
+- min_tests to (min_tests × 3 - 1): `-1 × strictness` point
+  - Example: strictness=1.3, min=16, actual=25 tests → -1.3 points
+- ≥ (min_tests × 3): full points
 
 ### 3. Analyze Test Coverage
 
@@ -98,16 +125,22 @@ Check jest.config.js for coverage settings:
 grep "collectCoverage\|coverageThreshold" jest.config.js
 ```
 
-**Coverage Requirements:**
-- **Minimum:** 70% overall coverage
-- **Target:** 90% for critical business logic
-- **Threshold:** Projects with <70% coverage fail this category
+**Coverage Requirements (adjusted by strictness):**
+- **Minimum threshold** (scales with strictness):
+  - strictness=1.0: 70% coverage required
+  - strictness=1.2: 78% coverage required (70% + 0.2 × 40%)
+  - strictness=1.3: 82% coverage required (70% + 0.3 × 40%)
+  - Formula: `required_coverage = 0.70 + (strictness - 1.0) × 0.40`
 
-**Scoring:**
-- Coverage ≥ 90%: 10/10 points
-- Coverage 80-89%: 8/10 points
-- Coverage 70-79%: 6/10 points
-- Coverage < 70%: 0/10 points (fail)
+**Scoring (adjusted thresholds):**
+- Coverage ≥ (required + 20%): 10/10 points (excellent)
+- Coverage (required + 10%) to (required + 19%): 8/10 points (good)
+- Coverage required to (required + 9%): 6/10 points (acceptable)
+- Coverage < required: 0/10 points (fail)
+
+**Examples:**
+- strictness=1.0: 70% required, 90%+ excellent, 80-89% good, 70-79% acceptable
+- strictness=1.3: 82% required, 102%+ excellent (unlikely), 92-101% good, 82-91% acceptable
 
 ### 4. Check for Edge Case Testing
 
