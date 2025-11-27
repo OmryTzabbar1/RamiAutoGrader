@@ -62,17 +62,18 @@ The README is the most important document for usability. Check for:
 - Minimum 300 words (brief READMEs are insufficient)
 - No broken links (if any links present)
 
-**Use Python helper:**
+**Manual Analysis:**
+Use Read and Grep tools to validate README:
 ```bash
-python src/validators/readme_validator.py <project_path>
+# Read README and check sections manually
+# Count code blocks (pairs of ```)
+grep -c '```' README.md
+
+# Check for key sections
+grep -i "## Installation\|## Usage\|## Examples" README.md
 ```
 
-The validator will:
-1. Read README.md
-2. Extract sections (H1, H2, H3 headers)
-3. Check for code blocks
-4. Count words
-5. Validate completeness
+Manually verify README completeness by reading it.
 
 **Scoring:**
 - Missing README: -10 points (critical)
@@ -149,20 +150,14 @@ grep -i "acceptance" TASKS.md | wc -l
 - Fewer than 20 tasks: -2 points (insufficient breakdown)
 - No acceptance criteria: -1 point
 
-### 6. Use Python Helper for Complete Analysis
+### 6. Aggregate Documentation Analysis
 
-For comprehensive validation, run the document checker:
-
-```bash
-python src/analyzers/documentation_checker.py <project_path>
-```
-
-This will:
-1. Check all required documents
-2. Validate README structure
-3. Analyze PRD completeness
-4. Verify architecture documentation
-5. Calculate documentation score
+After checking all documents, calculate the score:
+1. Check presence of all required documents (ls, find)
+2. Validate README structure (Read + manual review)
+3. Analyze PRD completeness (Read + check sections)
+4. Verify architecture documentation (ls docs/)
+5. Calculate documentation score based on findings
 
 ### 7. Calculate Documentation Score
 
@@ -227,27 +222,26 @@ Output a structured report:
 /path/to/student/project
 ```
 
-## Python Helpers Available
+## Tools to Use
 
-1. **documentation_checker.py** - Complete documentation analysis
+Use Claude Code's built-in tools for validation:
+
+1. **Bash** - Check file existence
    ```bash
-   python src/analyzers/documentation_checker.py <path>
+   ls PRD.md README.md PLANNING.md TASKS.md
+   ls -R docs/
    ```
 
-2. **readme_validator.py** - Detailed README analysis
+2. **Grep** - Search for sections and patterns
    ```bash
-   python src/validators/readme_validator.py <path>
+   grep -i "## Problem Statement" PRD.md
+   grep -c '```' README.md
    ```
 
-3. **document_validator.py** - Check required documents
-   ```bash
-   python src/validators/document_validator.py <path>
-   ```
-
-4. **markdown_utils.py** - Parse markdown structure
-   ```bash
-   python src/utils/markdown_utils.py <file>
-   ```
+3. **Read** - Analyze document content
+   - Read each document and verify completeness
+   - Check structure and quality
+   - Verify all required sections present
 
 ## Success Criteria
 

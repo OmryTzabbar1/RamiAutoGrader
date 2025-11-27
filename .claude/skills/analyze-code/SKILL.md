@@ -32,13 +32,19 @@ wc -l <file_path>
 
 **Requirements:**
 - Maximum 150 lines per file
-- Exclude: comments, blank lines, docstrings (optional - can count all lines)
+- Count all lines (including comments and docstrings for simplicity)
 - **Penalty:** -5 points per violation
 
-**Alternative:** Use the Python helper:
+Use Bash to check file sizes:
 ```bash
-python src/analyzers/file_size_analyzer.py <project_path> --limit 150
+# Find all source files and check line counts
+find src -name "*.py" -type f -exec wc -l {} \; | sort -rn
+
+# Or check specific files
+wc -l src/path/to/file.py
 ```
+
+Any file with >150 lines is a violation.
 
 ### 2. Check Docstring Coverage
 
@@ -52,17 +58,19 @@ Analyze Python files for missing docstrings on:
 - Each function, class, module must have docstring
 - **Penalty:** Coverage below 90% → subtract (0.9 - actual_coverage) * 20 points
 
-**Use Python helper:**
+Check docstring coverage using Grep and Read:
 ```bash
-python src/analyzers/docstring_analyzer.py <project_path> --min-coverage 0.9
+# Count total functions and classes
+total_defs=$(grep -r "^def \|^class " src/ --include="*.py" | wc -l)
+
+# Read sample files to check for docstrings
+# A function has a docstring if the line after 'def' contains """
+
+# For a quick check, sample a few files using Read tool
+# and verify docstrings are present on functions/classes
 ```
 
-The analyzer will:
-1. Parse Python files using AST
-2. Extract all functions, classes, modules
-3. Check for docstring presence
-4. Calculate coverage percentage
-5. Report missing docstrings
+**Manual verification recommended:** Read key source files and check that functions/classes have docstrings.
 
 ### 3. Validate Naming Conventions
 
@@ -82,10 +90,19 @@ Check that code follows proper naming conventions:
 
 **Penalty:** -0.5 points per violation
 
-**Use Python helper:**
+Check naming with Grep:
 ```bash
-python src/analyzers/naming_validator.py <project_path>
+# Find potential naming violations (functions that look like PascalCase)
+grep -rn "^def [A-Z]" src/ --include="*.py"
+
+# Find potential class naming violations (classes not in PascalCase)
+grep -rn "^class [a-z_]" src/ --include="*.py"
+
+# Find constants that aren't UPPER_SNAKE_CASE
+grep -rn "^[a-z][a-zA-Z_]*\s*=" src/ --include="*.py" | grep -v "def \|class "
 ```
+
+Review findings and count violations.
 
 ### 4. Check Code Complexity (Optional)
 
@@ -150,29 +167,24 @@ Output a detailed report with:
 /path/to/student/project
 ```
 
-## Python Helpers Available
+## Tools to Use
 
-All helpers are in `src/analyzers/` and `src/validators/`:
+Use Claude Code's built-in tools for analysis:
 
-1. **file_size_analyzer.py** - Checks file line counts
+1. **Bash** - For finding files and counting lines
    ```bash
-   python src/analyzers/file_size_analyzer.py <path> --limit 150
+   find src -name "*.py" -exec wc -l {} \;
    ```
 
-2. **docstring_analyzer.py** - Analyzes docstring coverage
+2. **Grep** - For pattern matching and searching
    ```bash
-   python src/analyzers/docstring_analyzer.py <path> --min-coverage 0.9
+   grep -rn "^def \|^class " src/ --include="*.py"
    ```
 
-3. **naming_validator.py** - Validates naming conventions
-   ```bash
-   python src/validators/naming_validator.py <path>
-   ```
-
-4. **python_parser.py** - AST-based Python parsing
-   ```bash
-   python src/parsers/python_parser.py <file>
-   ```
+3. **Read** - For reading and analyzing file contents
+   - Read source files to verify docstrings
+   - Check code structure and quality
+   - Identify naming violations
 
 ## Success Criteria
 
