@@ -22,19 +22,31 @@ After running all grading skills, use this to generate a detailed report that he
 ## Input Required
 
 - **Project path**: Path to the graded project
-- **Grading results**: Complete results from grade_project.py or run_all_skills()
+- **Grading results**: Complete results from all grading skills
 
 ## Instructions
 
 ### Step 1: Gather Complete Grading Results
 
-Run the full grader to get detailed results:
+Run all grading skills **in parallel** to get detailed results:
 
 ```bash
-python grade_project.py <project_path> --json > grading_results.json
+# Run all 7 grading skills in parallel groups
+# Group 1 (parallel)
+/skill check-security <project_path>
+/skill validate-docs <project_path>
+/skill check-ux <project_path>
+
+# Group 2 (parallel)
+/skill analyze-code <project_path>
+/skill evaluate-tests <project_path>
+
+# Group 3 (parallel)
+/skill assess-git <project_path>
+/skill grade-research <project_path>
 ```
 
-Or if already graded, use existing results dictionary.
+Or let the grade-project agent orchestrate everything automatically.
 
 ### Step 2: Analyze Each Category in Detail
 
@@ -475,15 +487,13 @@ Then provide:
 ### Integrated with Grading
 
 ```bash
-# Grade and auto-generate detailed report
-python grade_project.py ./student-project --json > grading_results.json
+# Run all grading skills in parallel, then generate report
 
-# Generate detailed markdown report
-python -c "
-from datetime import datetime
-from pathlib import Path
-from src.reporters.detailed_reporter import generate_detailed_report
-import json
+# Step 1: Run grading skills in parallel groups
+# (See instructions above for parallel skill invocation)
+
+# Step 2: After all skills complete, generate detailed report
+/skill generate-detailed-report ./student-project
 
 with open('grading_results.json') as f:
     results = json.load(f)

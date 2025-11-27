@@ -121,32 +121,40 @@ result = subprocess.run(
 
 ### Basic Usage (Parallel Mode - Default)
 
-```bash
-# Parallel execution (default, fastest)
-python grade_project.py ./student-project
+The grade-project agent automatically runs all skills in parallel for 3-5x speedup:
 
-# Same as:
-python grade_project.py ./student-project --parallel --workers 4
+```bash
+# Use the grade-project agent (runs skills in parallel automatically)
+# Invoke agent, then provide project path when prompted
+
+# Or invoke individual skills in parallel groups:
+# Group 1 (parallel): Security, Docs, UX
+/skill check-security ./student-project
+/skill validate-docs ./student-project
+/skill check-ux ./student-project
+
+# Group 2 (parallel): Code Quality, Tests
+/skill analyze-code ./student-project
+/skill evaluate-tests ./student-project
+
+# Group 3 (parallel): Git Workflow, Research
+/skill assess-git ./student-project
+/skill grade-research ./student-project
 ```
+
+**Performance:** Parallel skill execution provides 3-5x speedup (3-5 seconds vs 15-20 seconds sequential).
 
 ### Sequential Mode (For Debugging)
 
-```bash
-# Sequential execution (slower, easier to debug)
-python grade_project.py ./student-project --sequential
-```
-
-### Advanced Options
+For debugging, invoke skills one at a time:
 
 ```bash
-# Customize worker count (2-8 workers recommended)
-python grade_project.py ./project --workers 6
-
-# Disable early exit (run all checks even on critical failures)
-python grade_project.py ./project --no-early-exit
-
-# Combine options
-python grade_project.py ./project --workers 8 --no-early-exit --json
+# Run skills sequentially (slower, easier to debug)
+/skill check-security ./student-project
+# Wait for result...
+/skill validate-docs ./student-project
+# Wait for result...
+# etc.
 ```
 
 ---
@@ -200,11 +208,10 @@ Performance Improvement:
 
 **Finding Optimal Worker Count:**
 ```bash
-# Test different configurations
-for workers in 2 4 6 8; do
-    echo "Testing $workers workers..."
-    python grade_project.py ./project --workers $workers
-done
+# Test parallel skill invocation performance
+# Invoke skills in different group sizes to measure throughput
+# Smaller groups = more parallel batches
+# Larger groups = fewer batches but more concurrent skills
 ```
 
 ### When to Use Sequential Mode
@@ -290,10 +297,7 @@ All analyzers are **thread-safe**:
 
 **Symptom:** Error when grading large projects with many files.
 
-**Solution:** Reduce worker count:
-```bash
-python grade_project.py ./project --workers 2
-```
+**Solution:** Reduce parallel skill invocations - invoke fewer skills concurrently or run sequentially.
 
 ### Workers Not Improving Performance
 

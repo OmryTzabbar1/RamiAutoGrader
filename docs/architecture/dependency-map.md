@@ -1,35 +1,41 @@
 # Module Dependency Map
 
-**Generated:** 2025-11-26  
-**Purpose:** Identify used vs unused code after agent architecture change
+**Generated:** 2025-11-27 (Updated)
+**Purpose:** Document current skill-based architecture after legacy code cleanup
 
 ---
 
 ## Entry Points
 
-### 1. Claude Code Skills (Primary Entry Points - USED)
+### 1. Claude Code Skills (Primary Entry Points - ACTIVE)
 
-**Location:** `skills/*.skill/main.py`
+**Location:** `.claude/skills/*/SKILL.md`
 
-These are invoked by the agent via `/skill <name>`:
+These are Markdown instruction files invoked by the agent via `/skill <name>`:
 
-- **analyze-code**: `skills/analyze-code.skill/main.py`
-- **assess-git**: `skills/assess-git.skill/main.py`
-- **check-security**: `skills/check-security.skill/main.py`
-- **check-ux**: `skills/check-ux.skill/main.py`
-- **evaluate-tests**: `skills/evaluate-tests.skill/main.py`
-- **grade-research**: `skills/grade-research.skill/main.py`
-- **validate-docs**: `skills/validate-docs.skill/main.py`
+- **analyze-code**: `.claude/skills/analyze-code/SKILL.md`
+- **assess-git**: `.claude/skills/assess-git/SKILL.md`
+- **check-security**: `.claude/skills/check-security/SKILL.md`
+- **check-ux**: `.claude/skills/check-ux/SKILL.md`
+- **evaluate-tests**: `.claude/skills/evaluate-tests/SKILL.md`
+- **generate-detailed-report**: `.claude/skills/generate-detailed-report/SKILL.md`
+- **git-clone**: `.claude/skills/git-clone/SKILL.md`
+- **grade-from-git**: `.claude/skills/grade-from-git/SKILL.md`
+- **grade-research**: `.claude/skills/grade-research/SKILL.md`
+- **validate-docs**: `.claude/skills/validate-docs/SKILL.md`
 
-### 2. Legacy CLI Scripts (POTENTIALLY UNUSED)
+### 2. Grade-Project Agent (Orchestrator)
 
-**Location:** Root directory
+**Location:** `.claude/agents/grade-project/agent.yaml`
 
-These were CLI entry points before agent architecture:
+The agent orchestrates all grading skills in parallel for 3-5x speedup.
 
-- **grade_from_git.py**: Clone + grade in one script (152 lines)
-- **grade_project.py**: Orchestrate all grading (163 lines)  
-- **benchmark_performance.py**: Performance testing
+### 3. Legacy Code (REMOVED)
+
+The following were removed during architecture cleanup:
+- ~~`skills/*.skill/` directory~~ (Deleted: Python-based skills)
+- ~~`grade_project.py`~~ (Archived: Monolithic orchestrator script)
+- ~~`grade_from_git.py`~~ (Replaced by: grade-from-git skill)
 
 ---
 

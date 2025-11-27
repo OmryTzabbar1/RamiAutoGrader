@@ -65,33 +65,44 @@ print(json.dumps(result, indent=2))
 
 ### 3. Grade the Cloned Repository
 
-Once cloned successfully, invoke the grade-project agent:
+Once cloned successfully, run all grading skills **in parallel** on the cloned path:
 
 ```bash
 # Use the cloned path
 CLONED_PATH="/tmp/autograder_xyz/project-name"
 
-# Run the grader
-python grade_project.py "$CLONED_PATH"
+# Run grading skills in parallel groups (invoke multiple skills in one message)
+
+# Group 1 (parallel): Security, Documentation, UX
+/skill check-security "$CLONED_PATH"
+/skill validate-docs "$CLONED_PATH"
+/skill check-ux "$CLONED_PATH"
+
+# Group 2 (parallel): Code Quality, Testing
+/skill analyze-code "$CLONED_PATH"
+/skill evaluate-tests "$CLONED_PATH"
+
+# Group 3 (parallel): Git Workflow, Research
+/skill assess-git "$CLONED_PATH"
+/skill grade-research "$CLONED_PATH"
 ```
 
-Or use the Python API directly:
+**Performance:** Running skills in parallel provides 3-5x speedup (3-5 seconds vs 15-20 seconds sequential).
 
-```python
-from src.core.skill_executor import run_all_skills
-from src.core.grading_utils import format_results_summary
-
-results = run_all_skills(cloned_path)
-print(format_results_summary(results))
-```
-
-### 4. Save Results
-
-Save grading results with repository information:
+Or let the grade-project agent orchestrate everything automatically:
 
 ```bash
-# Save to JSON with repo name
-python grade_project.py "$CLONED_PATH" --output "results/${REPO_NAME}_grading_report.json"
+# The agent runs all skills in parallel and aggregates results
+# Simply provide the cloned path when prompted by the agent
+```
+
+### 4. Generate Report
+
+After all skills complete, generate a comprehensive report:
+
+```bash
+# Use the generate-detailed-report skill
+/skill generate-detailed-report "$CLONED_PATH"
 ```
 
 ### 5. Cleanup (Optional)
