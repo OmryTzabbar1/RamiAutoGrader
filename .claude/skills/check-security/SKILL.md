@@ -1,7 +1,7 @@
 ---
 name: check-security
 description: Scans for hardcoded secrets, validates .gitignore and .env configuration
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Security Check Skill
@@ -12,6 +12,22 @@ Evaluates security practices in academic software projects by checking for:
 - Environment variable management
 
 **Scoring:** 10 points maximum (critical security category)
+
+---
+
+## Strictness Parameter (Optional)
+
+This skill supports **adaptive grading strictness** based on student self-assessment.
+
+**Default**: `strictness = 1.0` (standard grading)
+**Range**: `1.0 to 1.3` (higher = more critical evaluation)
+
+**How strictness affects grading:**
+- **Critical violations** (hardcoded secrets) always result in 0 points (not affected by strictness)
+- **Non-critical penalties** (gitignore, env config) are multiplied by strictness value
+- **Security best practices** are scrutinized more carefully at higher strictness
+
+**Usage**: If strictness is specified in the grading request, apply it to non-critical penalty calculations.
 
 ## Instructions
 
@@ -57,7 +73,9 @@ Read the `.gitignore` file and verify it contains these security patterns:
 - `secrets.yaml` or `secrets.yml` (secret files)
 - `config/secrets.*` (secret configuration)
 
-**Penalty:** -3 points if .gitignore is missing required patterns
+**Penalty:** `-3 × strictness` points if .gitignore is missing required patterns
+  - strictness=1.0: -3 points
+  - strictness=1.3: -3.9 points
 
 ### 3. Check Environment Configuration
 
@@ -79,17 +97,29 @@ Verify proper environment variable management:
    ```
    (Should return empty - if .env appears, it's tracked and this is a violation)
 
-**Penalty:** -2 points if environment config is improper
+**Penalty:** `-2 × strictness` points if environment config is improper
+  - strictness=1.0: -2 points
+  - strictness=1.3: -2.6 points
 
 ### 4. Calculate Score
 
-**Scoring Logic:**
+**Scoring Logic (with strictness):**
 - Start with 10 points
-- **Hardcoded secrets found:** 0 points (critical failure)
-- **Missing .gitignore patterns:** -3 points
-- **Improper environment config:** -2 points
+- Strictness: 1.0 to 1.3 (default: 1.0)
+- **Hardcoded secrets found:** 0 points (critical failure, not affected by strictness)
+- **Missing .gitignore patterns:** `-3 × strictness` points
+- **Improper environment config:** `-2 × strictness` points
 - Minimum score: 0
 - Passing threshold: 7/10
+
+**Examples:**
+- strictness=1.0, missing .gitignore patterns, improper env config:
+  - Deductions: -3 -2 = -5
+  - Score: 10 - 5 = 5/10 (FAIL)
+
+- strictness=1.3, missing .gitignore patterns, improper env config:
+  - Deductions: -3.9 -2.6 = -6.5
+  - Score: 10 - 6.5 = 3.5/10 (FAIL, worse than standard)
 
 ### 5. Generate Report
 
