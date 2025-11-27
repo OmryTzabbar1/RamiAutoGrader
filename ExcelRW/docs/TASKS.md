@@ -53,6 +53,29 @@
 - ✅ CLAUDE.md: Updated PDF parsing strategy
 - ✅ .env.example: Added grading strictness configuration
 
+**Implementation Priorities (Updated 2025-11-27):**
+
+**P0 (Critical - MVP):**
+- ✅ Download PDFs from Moodle
+- ✅ Extract GitHub URLs from PDF hyperlinks
+- ✅ Organize into folder structure
+
+**P1 (Important):**
+- Self-grade extraction using Claude/LLM
+- Implement strictness parameter in RamiAutoGrader grading skills
+- Integration testing
+
+**P2 (Nice to Have):**
+- Moodle authentication (can be manual for now)
+- Report generation
+- Advanced error handling
+
+**Notes:**
+- GitHub clone skill: Already exists in RamiAutoGrader (reuse it, no need to rebuild)
+- Self-grade extraction: Use Claude Code to read PDF and extract grade (handle unstructured text)
+- Name collisions: Not an issue for this use case
+- Timeline: No urgency - focus on quality over speed
+
 ---
 
 ## Progress Overview
@@ -60,10 +83,12 @@
 | Phase | Tasks | Completed | Progress | Status |
 |-------|-------|-----------|----------|--------|
 | Phase 1: Planning & Setup | 10 | 10 | 100% | 🟢 Completed |
-| Phase 2: Core Skills Development | 12 | 0 | 0% | 🔴 Not Started |
+| **Phase 2A: MVP (P0 Features)** | **8** | **0** | **0%** | 🔴 Not Started |
+| Phase 2B: Enhanced Features (P1) | 6 | 0 | 0% | 🔴 Not Started |
+| Phase 2C: Moodle Integration (P2) | 5 | 0 | 0% | 🔴 Not Started |
 | Phase 3: Integration & Testing | 8 | 0 | 0% | 🔴 Not Started |
 | Phase 4: Documentation & Deployment | 6 | 0 | 0% | 🔴 Not Started |
-| **TOTAL** | **36** | **10** | **28%** | 🟡 In Progress |
+| **TOTAL** | **43** | **10** | **23%** | 🟡 In Progress |
 
 ---
 
@@ -105,19 +130,142 @@
 
 ---
 
-## Phase 2: Core Skills Development (0% Complete)
+## Phase 2A: MVP - Core Download Functionality (P0 Features) (0% Complete)
 
-### 2.1 Authentication Skill
+**Goal**: Download PDFs from Moodle and extract GitHub URLs (minimum viable product)
+
+### 2A.1 PDF Download & Organization
 
 | ID | Task | Priority | Status | Assignee | Due Date | Notes |
 |----|------|----------|--------|----------|----------|-------|
-| P2.1.1 | Create moodle-authenticate skill structure | P0 | 🔴 | - | 2025-11-28 | .claude/skills/moodle-authenticate/ |
-| P2.1.2 | Write SKILL.md for moodle-authenticate | P0 | 🔴 | - | 2025-11-28 | Include prerequisites, parameters, instructions |
-| P2.1.3 | Implement moodle_auth.py (API version) | P0 | 🔴 | - | 2025-11-28 | Use Moodle Web Services API |
-| P2.1.4 | Implement moodle_auth_selenium.py (fallback) | P1 | 🔴 | - | 2025-11-29 | Use Selenium for web login |
-| P2.1.5 | Add session caching (save cookies) | P2 | 🔴 | - | 2025-11-29 | Avoid repeated logins |
+| P2A.1.1 | Create download-pdfs skill structure | P0 | 🔴 | - | TBD | .claude/skills/download-pdfs/ |
+| P2A.1.2 | Write SKILL.md for manual PDF download workflow | P0 | 🔴 | - | TBD | Instructions for organizing manually downloaded PDFs |
+| P2A.1.3 | Implement organize_folders.py | P0 | 🔴 | - | TBD | Create Assignments/Assignment_XX/student_name/ structure |
+| P2A.1.4 | Implement sanitize_names.py | P0 | 🔴 | - | TBD | Convert "John Doe" → "student_John_Doe" |
+| P2A.1.5 | Add folder validation checks | P0 | 🔴 | - | TBD | Verify structure matches expected format |
 
-**Acceptance Criteria (P2.1)**:
+**Acceptance Criteria (P2A.1)**:
+- [ ] SKILL.md explains how to manually download PDFs from Moodle
+- [ ] organize_folders.py creates correct structure: `Assignments/Assignment_XX/student_name/`
+- [ ] Name sanitization handles spaces, special chars, unicode
+- [ ] Validates that all expected files exist (submission.pdf)
+- [ ] All scripts < 150 lines
+- [ ] Docstrings on all functions
+- [ ] Unit tests for folder organization
+
+**Estimated Effort**: 3-4 hours
+
+---
+
+### 2A.2 GitHub URL Extraction from PDFs
+
+| ID | Task | Priority | Status | Assignee | Due Date | Notes |
+|----|------|----------|--------|----------|----------|-------|
+| P2A.2.1 | Create extract-github-urls skill | P0 | 🔴 | - | TBD | .claude/skills/extract-github-urls/ |
+| P2A.2.2 | Write SKILL.md for GitHub extraction | P0 | 🔴 | - | TBD | Instructions for batch URL extraction |
+| P2A.2.3 | Implement extract_hyperlinks.py | P0 | 🔴 | - | TBD | Extract hyperlinks from PDF annotations (PyPDF2/pikepdf) |
+| P2A.2.4 | Implement extract_text_urls.py (fallback) | P0 | 🔴 | - | TBD | Text search for github.com patterns (pdfplumber) |
+| P2A.2.5 | Implement url_validator.py | P0 | 🔴 | - | TBD | Validate and normalize GitHub URLs |
+| P2A.2.6 | Create metadata writer | P0 | 🔴 | - | TBD | Save student_name, github_url to metadata.json |
+
+**Acceptance Criteria (P2A.2)**:
+- [ ] Extracts GitHub URLs from PDF hyperlinks (primary method)
+- [ ] Falls back to text search if no hyperlinks found
+- [ ] Normalizes URLs (handles github.com, www.github.com, /tree/main, etc.)
+- [ ] Validates URL format before saving
+- [ ] Saves metadata.json with student_name, github_url, extraction_method
+- [ ] Logs PDFs where GitHub URL not found (for manual review)
+- [ ] All scripts < 150 lines
+- [ ] 90%+ test coverage with sample PDFs
+
+**Estimated Effort**: 5-6 hours
+
+---
+
+### 2A.3 Integration with Existing RamiAutoGrader
+
+| ID | Task | Priority | Status | Assignee | Due Date | Notes |
+|----|------|----------|--------|----------|----------|-------|
+| P2A.3.1 | Test github-clone skill with ExcelRW metadata | P0 | 🔴 | - | TBD | Verify existing skill works with our folder structure |
+| P2A.3.2 | Create batch-grade-submissions skill | P0 | 🔴 | - | TBD | Invoke grade-from-git for all students |
+
+**Acceptance Criteria (P2A.3)**:
+- [ ] Existing github-clone skill successfully clones repos to student_name/repo/
+- [ ] batch-grade-submissions reads metadata.json and grades all repos
+- [ ] Results saved to student_name/grading_results.json
+
+**Estimated Effort**: 2-3 hours
+
+---
+
+## Phase 2B: Enhanced Features (P1 Features) (0% Complete)
+
+**Goal**: Add self-grade extraction and adaptive grading strictness
+
+### 2B.1 Self-Grade Extraction Using Claude
+
+| ID | Task | Priority | Status | Assignee | Due Date | Notes |
+|----|------|----------|--------|----------|----------|-------|
+| P2B.1.1 | Create extract-self-grades skill | P1 | 🔴 | - | TBD | .claude/skills/extract-self-grades/ |
+| P2B.1.2 | Write SKILL.md for LLM-based extraction | P1 | 🔴 | - | TBD | Instructions for Claude to read PDF and extract grade |
+| P2B.1.3 | Implement pdf_to_text.py | P1 | 🔴 | - | TBD | Extract full text from PDF for Claude |
+| P2B.1.4 | Create self_grade_prompt.txt | P1 | 🔴 | - | TBD | Prompt template for Claude to extract grade |
+| P2B.1.5 | Implement grade_extractor.py | P1 | 🔴 | - | TBD | Use Claude API to extract self-grade from text |
+| P2B.1.6 | Add validation and fallback | P1 | 🔴 | - | TBD | Validate extracted grade (0-100), handle failures |
+
+**Acceptance Criteria (P2B.1)**:
+- [ ] Extracts self-grade from unstructured PDF text using Claude/LLM
+- [ ] Handles various formats ("85", "85/100", "I deserve 85", etc.)
+- [ ] Validates extracted grade is in range 0-100
+- [ ] Flags PDFs where grade cannot be extracted (manual review)
+- [ ] Updates metadata.json with self_grade field
+- [ ] All scripts < 150 lines
+- [ ] Test with sample PDFs with various self-grade formats
+
+**Estimated Effort**: 4-5 hours
+
+---
+
+### 2B.2 Implement Strictness Parameter in RamiAutoGrader
+
+| ID | Task | Priority | Status | Assignee | Due Date | Notes |
+|----|------|----------|--------|----------|----------|-------|
+| P2B.2.1 | Design strictness parameter interface | P1 | 🔴 | - | TBD | How to pass strictness to grading skills |
+| P2B.2.2 | Update analyze-code skill to accept strictness | P1 | 🔴 | - | TBD | Apply stricter penalties based on multiplier |
+| P2B.2.3 | Update evaluate-tests skill to accept strictness | P1 | 🔴 | - | TBD | Require higher coverage (e.g., 80% vs 70%) |
+| P2B.2.4 | Update check-security skill to accept strictness | P1 | 🔴 | - | TBD | More critical of potential vulnerabilities |
+| P2B.2.5 | Update validate-docs skill to accept strictness | P1 | 🔴 | - | TBD | Require more comprehensive documentation |
+| P2B.2.6 | Calculate strictness in batch-grade-submissions | P1 | 🔴 | - | TBD | Use formula: 1.0 + (self_grade / 100) * 0.3 |
+| P2B.2.7 | Test strictness scaling with sample projects | P1 | 🔴 | - | TBD | Verify higher self-grades → lower scores |
+
+**Acceptance Criteria (P2B.2)**:
+- [ ] All grading skills accept optional `strictness` parameter (default: 1.0)
+- [ ] Strictness multiplier applied to penalties (e.g., -2 instead of -1 at 1.5x)
+- [ ] Test coverage thresholds scale with strictness
+- [ ] Strictness value saved to grading_results.json for transparency
+- [ ] batch-grade-submissions calculates strictness from self_grade
+- [ ] Verified: self_grade=95 results in more critical evaluation than self_grade=70
+- [ ] All changes maintain < 150 lines per file
+
+**Estimated Effort**: 6-8 hours
+
+---
+
+## Phase 2C: Moodle Integration (P2 Features) (0% Complete)
+
+**Goal**: Automate Moodle authentication and download (can be deferred)
+
+### 2C.1 Moodle Authentication Skill
+
+| ID | Task | Priority | Status | Assignee | Due Date | Notes |
+|----|------|----------|--------|----------|----------|-------|
+| P2C.1.1 | Create moodle-authenticate skill structure | P2 | 🔴 | - | TBD | .claude/skills/moodle-authenticate/ |
+| P2C.1.2 | Write SKILL.md for moodle-authenticate | P2 | 🔴 | - | TBD | Include prerequisites, parameters, instructions |
+| P2C.1.3 | Implement moodle_auth.py (API version) | P2 | 🔴 | - | TBD | Use Moodle Web Services API |
+| P2C.1.4 | Implement moodle_auth_selenium.py (fallback) | P2 | 🔴 | - | TBD | Use Selenium for web login |
+| P2C.1.5 | Add session caching (save cookies) | P2 | 🔴 | - | TBD | Avoid repeated logins |
+
+**Acceptance Criteria (P2C.1)**:
 - [ ] SKILL.md has examples, error handling, success criteria
 - [ ] moodle_auth.py successfully authenticates with API token
 - [ ] Fallback to Selenium works if API unavailable
@@ -128,73 +276,7 @@
 
 **Estimated Effort**: 4-6 hours
 
----
-
-### 2.2 Download Submissions Skill
-
-| ID | Task | Priority | Status | Assignee | Due Date | Notes |
-|----|------|----------|--------|----------|----------|-------|
-| P2.2.1 | Create moodle-download-submissions skill | P0 | 🔴 | - | 2025-11-30 | .claude/skills/moodle-download-submissions/ |
-| P2.2.2 | Write SKILL.md for download workflow | P0 | 🔴 | - | 2025-11-30 | Orchestration instructions for Claude |
-| P2.2.3 | Implement download_pdfs.py | P0 | 🔴 | - | 2025-12-01 | Fetch PDFs from Moodle |
-| P2.2.4 | Implement extract_github_urls.py | P0 | 🔴 | - | 2025-12-01 | Parse GitHub URLs from PDFs |
-| P2.2.5 | Implement organize_folders.py | P0 | 🔴 | - | 2025-12-01 | Create Assignments/Assignment_XX/ structure |
-| P2.2.6 | Add concurrent download support | P1 | 🔴 | - | 2025-12-02 | ThreadPoolExecutor, max 5 concurrent |
-| P2.2.7 | Add retry logic with exponential backoff | P0 | 🔴 | - | 2025-12-02 | 3 retries, 1s → 2s → 4s |
-
-**Acceptance Criteria (P2.2)**:
-- [ ] Downloads all PDFs for a given assignment number
-- [ ] Creates folder structure: `Assignments/Assignment_XX/student_YYYY/`
-- [ ] Extracts GitHub URL from each PDF
-- [ ] Saves metadata.json with student_id, github_url, self_grade
-- [ ] Generates download_report.txt summary
-- [ ] Handles errors gracefully (missing PDF, network timeout)
-- [ ] All helper scripts < 150 lines each
-- [ ] 90%+ test coverage
-
-**Estimated Effort**: 8-10 hours
-
----
-
-### 2.3 GitHub Clone Skill
-
-| ID | Task | Priority | Status | Assignee | Due Date | Notes |
-|----|------|----------|--------|----------|----------|-------|
-| P2.3.1 | Create github-clone-repos skill | P1 | 🔴 | - | 2025-12-03 | .claude/skills/github-clone-repos/ |
-| P2.3.2 | Write SKILL.md for batch cloning | P1 | 🔴 | - | 2025-12-03 | Instructions for cloning all student repos |
-| P2.3.3 | Implement batch_clone.py | P1 | 🔴 | - | 2025-12-03 | Clone repos to student_YYYY/repo/ |
-| P2.3.4 | Add shallow clone optimization | P2 | 🔴 | - | 2025-12-04 | --depth 1 for speed |
-| P2.3.5 | Handle private repos (GitHub token) | P2 | 🔴 | - | 2025-12-04 | Use GITHUB_TOKEN from .env |
-
-**Acceptance Criteria (P2.3)**:
-- [ ] Clones all GitHub repos from metadata.json
-- [ ] Repos saved to correct student folders
-- [ ] Handles clone failures gracefully (repo doesn't exist, private)
-- [ ] Uses shallow clone for speed
-- [ ] All code < 150 lines
-- [ ] Unit tests with mock Git
-
-**Estimated Effort**: 3-4 hours
-
----
-
-### 2.4 Report Generation Skill
-
-| ID | Task | Priority | Status | Assignee | Due Date | Notes |
-|----|------|----------|--------|----------|----------|-------|
-| P2.4.1 | Create generate-submission-report skill | P1 | 🔴 | - | 2025-12-04 | .claude/skills/generate-submission-report/ |
-| P2.4.2 | Write SKILL.md for reporting | P1 | 🔴 | - | 2025-12-04 | Generate summary of downloads |
-| P2.4.3 | Create report_template.md | P1 | 🔴 | - | 2025-12-04 | Markdown template for reports |
-| P2.4.4 | Implement report generation logic | P1 | 🔴 | - | 2025-12-05 | Read metadata, format report |
-
-**Acceptance Criteria (P2.4)**:
-- [ ] Generates markdown report with download statistics
-- [ ] Includes student count, success rate, errors, warnings
-- [ ] Lists students with missing GitHub URLs
-- [ ] Lists students with download failures
-- [ ] Saved to `Assignments/Assignment_XX/download_report.md`
-
-**Estimated Effort**: 2-3 hours
+**Note**: Can be deferred - manual download is acceptable for MVP
 
 ---
 
