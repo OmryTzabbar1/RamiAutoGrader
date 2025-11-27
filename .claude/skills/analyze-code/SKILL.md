@@ -1,18 +1,41 @@
 ---
 name: analyze-code
 description: Analyzes code quality including file sizes, docstrings, naming conventions, and complexity
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Code Quality Analysis Skill
 
 Evaluates code quality in academic software projects by checking:
 - File size limits (max 150 lines per file - STRICTLY ENFORCED)
-- Docstring coverage (minimum 90%)
+- Docstring coverage (minimum 90%, adjusted by strictness)
 - Naming conventions (snake_case, PascalCase, UPPER_SNAKE_CASE)
 - Code complexity metrics
 
 **Scoring:** 30 points maximum (largest category in grading rubric)
+
+---
+
+## Strictness Parameter (Optional)
+
+This skill supports **adaptive grading strictness** based on student self-assessment.
+
+**Default**: `strictness = 1.0` (standard grading)
+**Range**: `1.0 to 1.3` (higher = more critical evaluation)
+
+**How strictness affects grading:**
+- **Penalties are multiplied** by strictness value
+- **Quality thresholds are raised** for higher strictness
+- **Strictness value is included** in the final report for transparency
+
+**Formula**: `strictness = 1.0 + (self_grade / 100) * 0.3`
+
+Examples:
+- Student self-grade = 70  → strictness = 1.21 (21% stricter)
+- Student self-grade = 85  → strictness = 1.255 (25.5% stricter)
+- Student self-grade = 95  → strictness = 1.285 (28.5% stricter)
+
+**Usage**: If strictness is specified in the grading request, apply it to all penalty calculations and thresholds.
 
 ## Instructions
 
@@ -33,7 +56,10 @@ wc -l <file_path>
 **Requirements:**
 - Maximum 150 lines per file
 - Count all lines (including comments and docstrings for simplicity)
-- **Penalty:** -5 points per violation
+- **Penalty:** `-5 × strictness` points per violation
+  - strictness=1.0: -5 points
+  - strictness=1.2: -6 points
+  - strictness=1.3: -6.5 points
 
 Use Bash to check file sizes:
 ```bash
@@ -54,9 +80,16 @@ Analyze Python files for missing docstrings on:
 - Functions/Methods
 
 **Requirements:**
-- Minimum 90% coverage
+- **Minimum coverage threshold** (adjusted by strictness):
+  - strictness=1.0: 90% coverage required
+  - strictness=1.2: 94% coverage required (90% + 0.2 × 20%)
+  - strictness=1.3: 96% coverage required (90% + 0.3 × 20%)
+  - Formula: `required_coverage = 0.9 + (strictness - 1.0) * 0.2`
 - Each function, class, module must have docstring
-- **Penalty:** Coverage below 90% → subtract (0.9 - actual_coverage) * 20 points
+- **Penalty:** Coverage below threshold → subtract `(required_coverage - actual_coverage) × 20 × strictness` points
+  - Example (strictness=1.3, coverage=92%):
+    - Required: 96%
+    - Penalty: -(0.96 - 0.92) × 20 × 1.3 = -1.04 points
 
 Check docstring coverage using Grep and Read:
 ```bash
@@ -88,7 +121,10 @@ Check that code follows proper naming conventions:
 - Constants: `UPPER_SNAKE_CASE`
 - Variables: `camelCase`
 
-**Penalty:** -0.5 points per violation
+**Penalty:** `-0.5 × strictness` points per violation
+  - strictness=1.0: -0.5 points
+  - strictness=1.2: -0.6 points
+  - strictness=1.3: -0.65 points
 
 Check naming with Grep:
 ```bash
@@ -114,17 +150,30 @@ If time permits, check for overly complex functions:
 
 ### 5. Calculate Code Quality Score
 
-**Scoring Formula:**
+**Scoring Formula (with strictness):**
 ```
 Base Score: 30 points
+Strictness: 1.0 to 1.3 (default: 1.0)
+
+Required Docstring Coverage: 0.9 + (strictness - 1.0) * 0.2
 
 Deductions:
-- File size violations: -5 points each
-- Docstring coverage: -(0.9 - coverage) * 20 (if coverage < 0.9)
-- Naming violations: -0.5 points each
+- File size violations: -5 × strictness points each
+- Docstring coverage: -(required_coverage - actual_coverage) × 20 × strictness (if below threshold)
+- Naming violations: -0.5 × strictness points each
 
 Final Score: max(0, min(Base Score - Deductions, 30))
 ```
+
+**Examples:**
+- strictness=1.0, 2 file violations, 87% docstrings, 5 naming violations:
+  - Deductions: -5×2 + -(0.9-0.87)×20×1.0 + -0.5×5 = -10 -0.6 -2.5 = -13.1
+  - Score: 30 - 13.1 = 16.9/30
+
+- strictness=1.3, 2 file violations, 87% docstrings, 5 naming violations:
+  - Required docstring coverage: 0.9 + 0.3×0.2 = 0.96 (96%)
+  - Deductions: -5×1.3×2 + -(0.96-0.87)×20×1.3 + -0.5×1.3×5 = -13 -2.34 -3.25 = -18.59
+  - Score: 30 - 18.59 = 11.41/30
 
 **Passing Threshold:** 21/30 (70%)
 
@@ -136,10 +185,18 @@ Output a detailed report with:
 {
   "score": 25.0,
   "max_score": 30,
+  "strictness": 1.0,
+  "strictness_reason": "Default (no self-grade specified)",
   "passed": true,
   "file_size_violations": 2,
   "docstring_coverage": 0.87,
+  "docstring_coverage_required": 0.90,
   "naming_violations": 5,
+  "penalties_applied": {
+    "file_size": -10.0,
+    "docstring_coverage": -0.6,
+    "naming_violations": -2.5
+  },
   "details": {
     "oversized_files": [
       {"file": "src/analyzer.py", "lines": 182, "excess": 32},
