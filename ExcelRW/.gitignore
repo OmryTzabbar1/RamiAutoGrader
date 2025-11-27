@@ -1,0 +1,64 @@
+# ExcelRW - Moodle Integration .gitignore
+
+# Downloaded student assignments (contains sensitive student data)
+Assignments/
+
+# Temporary grading directories
+temp_grading_*/
+temp_*/
+
+# Environment variables (contains Moodle credentials)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Results and reports
+results/*.html
+results/*.pdf
+
+# OS
+.DS_Store
+Thumbs.db

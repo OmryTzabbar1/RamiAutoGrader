@@ -1,0 +1,56 @@
+# ExcelRW - Moodle Integration Requirements
+# Python 3.9+
+
+# =====================================================
+# MOODLE API & WEB SCRAPING
+# =====================================================
+requests>=2.31.0           # HTTP client for Moodle REST API
+selenium>=4.15.0           # Fallback for web scraping if API unavailable
+webdriver-manager>=4.0.1   # Auto-manage browser drivers
+
+# =====================================================
+# PDF PROCESSING (Multi-library fallback strategy)
+# =====================================================
+PyPDF2>=3.0.1              # Primary: Fast PDF parsing for hyperlinks
+pdfplumber>=0.10.3         # Secondary: Better text extraction with OCR
+pdfminer.six>=20221105     # Tertiary: Thorough but slower parsing
+pikepdf>=8.10.0            # PDF manipulation and repair
+
+# =====================================================
+# GITHUB INTEGRATION
+# =====================================================
+PyGithub>=2.1.1            # GitHub API client for validation
+gitpython>=3.1.40          # Git operations (clone, pull)
+
+# =====================================================
+# CONFIGURATION & ENVIRONMENT
+# =====================================================
+python-dotenv>=1.0.0       # Load environment variables from .env
+pyyaml>=6.0.1              # YAML configuration parsing
+
+# =====================================================
+# DATA VALIDATION & PROCESSING
+# =====================================================
+validators>=0.22.0         # URL and email validation
+python-magic>=0.4.27       # File type detection
+python-magic-bin>=0.4.14   # Windows compatibility for python-magic
+
+# =====================================================
+# TESTING
+# =====================================================
+pytest>=7.4.3              # Test framework
+pytest-cov>=4.1.0          # Coverage reporting
+pytest-mock>=3.12.0        # Mocking for tests
+responses>=0.24.1          # Mock HTTP requests in tests
+
+# =====================================================
+# LOGGING & MONITORING
+# =====================================================
+colorlog>=6.8.0            # Colored console logging
+tqdm>=4.66.1               # Progress bars for downloads
+
+# =====================================================
+# UTILITIES
+# =====================================================
+click>=8.1.7               # CLI interface (if needed)
+tabulate>=0.9.0            # Pretty-print tables
