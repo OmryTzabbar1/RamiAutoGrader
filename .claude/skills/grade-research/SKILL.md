@@ -150,23 +150,7 @@ grep -r "plt.plot\|plt.figure\|seaborn\|plotly" *.ipynb *.py
 - Basic visualizations (1-2 images): 1/2 points
 - Comprehensive visualizations (3+ charts/graphs): 2/2 points
 
-### 6. Use Python Helper for Complete Analysis
-
-Run the research quality analyzer:
-
-```bash
-python src/analyzers/research_analyzer.py <project_path>
-```
-
-This will:
-1. Find all research documentation
-2. Extract parameter exploration evidence
-3. Check for statistical analysis
-4. Identify comparative analysis
-5. Count visualizations
-6. Calculate research quality score
-
-### 7. Calculate Research Score
+### 6. Calculate Research Score
 
 **Scoring Formula:**
 ```
@@ -263,18 +247,6 @@ Output a detailed research evaluation:
 # When prompted, provide project path
 /path/to/student/project
 ```
-
-## Python Helpers Available
-
-1. **research_analyzer.py** - Complete research quality analysis
-   ```bash
-   python src/analyzers/research_analyzer.py <path>
-   ```
-
-2. **markdown_utils.py** - Parse research documentation
-   ```bash
-   python src/utils/markdown_utils.py <file>
-   ```
 
 ## Success Criteria
 

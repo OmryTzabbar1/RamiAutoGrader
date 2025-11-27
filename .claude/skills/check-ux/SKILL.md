@@ -73,9 +73,6 @@ grep -r "\.help()\|\.usage()" *.js src/
 **Test help availability:**
 ```bash
 # Try running with --help
-python main.py --help
-python src/main.py --help
-node index.js --help
 ```
 
 **Score Breakdown (3 points total):**
@@ -137,22 +134,7 @@ find . -name "*.png" -o -name "*.jpg" -o -name "*.gif" | grep -i "screenshot\|de
 **Score Breakdown (1 point):**
 - Has comprehensive usage examples: 1 point
 
-### 5. Use Python Helper for Complete Analysis
-
-Run the UX quality analyzer:
-
-```bash
-python src/analyzers/ux_analyzer.py <project_path>
-```
-
-This will:
-1. Analyze README structure and completeness
-2. Check for CLI help availability
-3. Evaluate installation clarity
-4. Count usage examples
-5. Calculate overall UX score
-
-### 6. Calculate UX Score
+### 5. Calculate UX Score
 
 **Scoring Formula:**
 ```
@@ -250,18 +232,6 @@ Output a detailed UX evaluation:
 /path/to/student/project
 ```
 
-## Python Helpers Available
-
-1. **ux_analyzer.py** - Complete UX quality analysis
-   ```bash
-   python src/analyzers/ux_analyzer.py <path>
-   ```
-
-2. **readme_validator.py** - Detailed README analysis
-   ```bash
-   python src/validators/readme_validator.py <path>
-   ```
-
 ## Success Criteria
 
 - ✅ README has all essential sections
@@ -346,7 +316,6 @@ Provide actionable feedback:
        pip install -r requirements.txt
 
        # Run on sample project
-       python main.py ./sample-project
        ```
        ```
 

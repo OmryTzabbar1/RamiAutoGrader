@@ -23,45 +23,31 @@ Check if the provided URL is a valid Git repository:
 - GitLab: `https://gitlab.com/user/repo.git`
 - Bitbucket: `https://bitbucket.org/user/repo.git`
 
-Use the Python helper to validate:
-```bash
-python -c "from src.utils.git_clone import is_git_url; print(is_git_url('$URL'))"
-```
-
 ### 2. Clone the Repository
 
-Use the Git clone helper utility:
+Use git clone command to clone the repository:
 
 ```bash
-python -c "
-from src.utils.git_clone import clone_repository
-import json
+# Extract repo name from URL
+REPO_URL="https://github.com/user/repo.git"
+REPO_NAME=$(basename "$REPO_URL" .git)
 
-result = clone_repository(
-    repo_url='$REPO_URL',
-    branch='$BRANCH',  # Optional, use 'main' or 'master' if not specified
-    depth=1  # Shallow clone for speed
-)
+# Clone to temporary directory
+CLONED_PATH="temp_grading_${REPO_NAME}"
+git clone "$REPO_URL" "$CLONED_PATH"
 
-print(json.dumps(result, indent=2))
-"
+# Verify clone succeeded
+if [ -d "$CLONED_PATH/.git" ]; then
+    echo "Successfully cloned to: $CLONED_PATH"
+else
+    echo "Clone failed"
+    exit 1
+fi
 ```
 
 **Parameters:**
-- `repo_url`: Git repository URL (required)
-- `branch`: Branch to clone (optional, defaults to default branch)
-- `depth`: Clone depth (1 for shallow, None for full history)
-
-**Return structure:**
-```json
-{
-  "success": true,
-  "path": "/tmp/autograder_xyz/project-name",
-  "message": "Successfully cloned https://github.com/user/repo.git",
-  "temp": true,
-  "repo_name": "project-name"
-}
-```
+- `REPO_URL`: Git repository URL (required)
+- `CLONED_PATH`: Target directory for clone (auto-generated based on repo name)
 
 ### 3. Grade the Cloned Repository
 
@@ -110,99 +96,47 @@ After all skills complete, generate a comprehensive report:
 Clean up the cloned repository after grading:
 
 ```bash
-python -c "
-from src.utils.git_clone import cleanup_clone
-cleanup_clone('$CLONED_PATH')
-print('Cleanup complete')
-"
+# Remove cloned directory
+rm -rf "$CLONED_PATH"
+echo "Cleanup complete"
 ```
 
-**Note:** If using temporary directory (default), cleanup happens automatically on system reboot.
+**Note:** If using temporary directory, cleanup happens automatically on system reboot.
 
 ## Complete Workflow Example
 
-```python
-#!/usr/bin/env python
-"""Complete grade-from-git workflow."""
+```bash
+#!/bin/bash
+# Complete grade-from-git workflow
 
-from src.utils.git_clone import clone_repository, cleanup_clone, is_git_url
-from src.core.skill_executor import run_all_skills
-from src.core.grading_utils import format_results_summary
-import json
-import sys
+REPO_URL="https://github.com/student/project.git"
+REPO_NAME=$(basename "$REPO_URL" .git)
+CLONED_PATH="temp_grading_${REPO_NAME}"
 
-def grade_from_git(repo_url, branch=None, output_file=None, cleanup=True):
-    """
-    Clone a Git repository and grade it.
+echo "[*] Cloning repository: $REPO_URL"
+git clone "$REPO_URL" "$CLONED_PATH"
 
-    Args:
-        repo_url: Git repository URL
-        branch: Branch to clone (optional)
-        output_file: Path to save results JSON (optional)
-        cleanup: Whether to cleanup after grading (default: True)
+if [ ! -d "$CLONED_PATH/.git" ]; then
+    echo "[X] Clone failed"
+    exit 1
+fi
 
-    Returns:
-        dict: Grading results
-    """
-    # Validate URL
-    if not is_git_url(repo_url):
-        print(f"Error: '{repo_url}' is not a valid Git URL")
-        return None
+echo "[+] Successfully cloned to: $CLONED_PATH"
+echo ""
+echo "[*] Grading $REPO_NAME..."
 
-    print(f"[*] Cloning repository: {repo_url}")
-    if branch:
-        print(f"    Branch: {branch}")
+# The grade-project agent or manual skill invocation would run here
+# For manual usage, invoke skills in parallel groups:
+# /skill check-security "$CLONED_PATH"
+# /skill validate-docs "$CLONED_PATH"
+# /skill check-ux "$CLONED_PATH"
+# ... (continue with other skills)
 
-    # Clone repository
-    clone_result = clone_repository(repo_url, branch=branch)
-
-    if not clone_result['success']:
-        print(f"[X] Clone failed: {clone_result['message']}")
-        return None
-
-    cloned_path = clone_result['path']
-    repo_name = clone_result['repo_name']
-
-    print(f"[+] Successfully cloned to: {cloned_path}")
-
-    # Grade the repository
-    print(f"\n[*] Grading {repo_name}...")
-    results = run_all_skills(cloned_path)
-
-    # Display summary
-    print("\n" + format_results_summary(results))
-
-    # Save to file if requested
-    if output_file:
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        print(f"\n[+] Results saved to: {output_file}")
-
-    # Cleanup if requested
-    if cleanup:
-        print(f"\n[*] Cleaning up cloned repository...")
-        cleanup_clone(cloned_path)
-        print("[+] Cleanup complete")
-
-    return results
-
-
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python -m grade_from_git <repo_url> [branch] [output_file]")
-        print("\nExample:")
-        print("  python -m grade_from_git https://github.com/user/project.git")
-        print("  python -m grade_from_git https://github.com/user/project.git main")
-        print("  python -m grade_from_git https://github.com/user/project.git main results.json")
-        sys.exit(1)
-
-    repo_url = sys.argv[1]
-    branch = sys.argv[2] if len(sys.argv) > 2 else None
-    output_file = sys.argv[3] if len(sys.argv) > 3 else None
-
-    result = grade_from_git(repo_url, branch, output_file)
-
-    sys.exit(0 if result and result['passed'] else 1)
+echo ""
+echo "[*] Grading complete"
+echo "[*] Cleaning up..."
+rm -rf "$CLONED_PATH"
+echo "[+] Cleanup complete"
 ```
 
 ## Usage Examples
@@ -231,7 +165,6 @@ EOF
 
 # Grade each one
 while read repo; do
-    python -m grade_from_git "$repo" main "results/$(basename $repo .git).json"
 done < repos.txt
 ```
 
@@ -245,22 +178,16 @@ done < repos.txt
 
 ### Example 4: Keep Cloned Repository
 
-```python
-from src.utils.git_clone import clone_repository
-from src.core.skill_executor import run_all_skills
+```bash
+# Clone to a permanent directory (skip cleanup)
+REPO_URL="https://github.com/user/project.git"
+REPO_NAME=$(basename "$REPO_URL" .git)
+TARGET_DIR="./submissions/${REPO_NAME}"
 
-# Clone but don't cleanup
-result = clone_repository(
-    "https://github.com/user/project.git",
-    target_dir="./submissions"  # Keeps in ./submissions/project/
-)
+git clone "$REPO_URL" "$TARGET_DIR"
 
-if result['success']:
-    # Grade it
-    grades = run_all_skills(result['path'])
-    print(f"Score: {grades['total_score']}/100")
-
-    # Repository remains in ./submissions/project/ for manual review
+# Grade it (use the grade-project agent or invoke skills manually)
+# Repository remains in ./submissions/project/ for manual review
 ```
 
 ## Error Handling

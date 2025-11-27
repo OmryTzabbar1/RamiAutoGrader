@@ -52,9 +52,6 @@ Count individual test functions/methods:
 ```bash
 # Count test functions
 grep -r "def test_" tests/ | wc -l
-
-# Or use Python helper
-python src/analyzers/test_counter.py <project_path>
 ```
 
 **JavaScript (Jest):**
@@ -92,7 +89,6 @@ If coverage configured, check for coverage report:
 ls .coverage coverage.json htmlcov/ .coverage.*
 
 # If coverage.json exists, parse it
-python -c "import json; data=json.load(open('coverage.json')); print(f\"Coverage: {data['totals']['percent_covered']}%\")"
 ```
 
 **For JavaScript projects using Jest:**
@@ -100,11 +96,6 @@ python -c "import json; data=json.load(open('coverage.json')); print(f\"Coverage
 Check jest.config.js for coverage settings:
 ```bash
 grep "collectCoverage\|coverageThreshold" jest.config.js
-```
-
-**Use Python helper for comprehensive analysis:**
-```bash
-python src/analyzers/test_analyzer.py <project_path>
 ```
 
 **Coverage Requirements:**
@@ -172,23 +163,7 @@ ls tests/unit/ tests/integration/ tests/fixtures/
 grep "def test_.*_when_.*_then_\|def test_.*_should_\|def test_.*_with_" tests/
 ```
 
-### 6. Use Python Helper for Complete Analysis
-
-Run the comprehensive test evaluator:
-
-```bash
-python src/analyzers/test_analyzer.py <project_path>
-```
-
-This will:
-1. Find all test files
-2. Count test cases
-3. Check for coverage configuration
-4. Parse coverage reports (if available)
-5. Analyze test quality
-6. Calculate test score
-
-### 7. Calculate Test Score
+### 6. Calculate Test Score
 
 **Scoring Formula:**
 ```
@@ -256,18 +231,6 @@ Output a detailed test evaluation:
 # When prompted, provide project path
 /path/to/student/project
 ```
-
-## Python Helpers Available
-
-1. **test_analyzer.py** - Complete test evaluation
-   ```bash
-   python src/analyzers/test_analyzer.py <path>
-   ```
-
-2. **test_counter.py** - Count test cases
-   ```bash
-   python src/analyzers/test_counter.py <path>
-   ```
 
 ## Success Criteria
 

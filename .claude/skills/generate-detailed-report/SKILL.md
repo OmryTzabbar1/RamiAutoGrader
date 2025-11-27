@@ -358,12 +358,10 @@ QUICK FIX COMMANDS
 ─────────────────────────────────────────────────────────────
 
 Check file sizes:
-  python -c "from src.analyzers.file_size_analyzer import check_file_sizes; \
   violations = check_file_sizes('.', 150); \
   print('\\n'.join(f'{v.file_path}: {v.line_count} lines' for v in violations))"
 
 Check docstring coverage:
-  python -c "from src.analyzers.docstring_analyzer import analyze_project_docstrings; \
   result = analyze_project_docstrings('.'); \
   print(f\"Coverage: {result['coverage']:.1%}\"); \
   print('Missing:', result['missing'])"
@@ -398,68 +396,34 @@ Generate a comprehensive markdown report and save it to the `results/` folder.
 
 ### How to Generate the Report
 
-Use the Python detailed reporter module:
+**Use Claude Code's built-in Write tool** to create the markdown report:
 
-```python
-from datetime import datetime
-from pathlib import Path
-from src.reporters.detailed_reporter import generate_detailed_report
-import json
-
-# Load grading results
-with open('grading_results.json', 'r') as f:
-    results = json.load(f)
-
-# Generate detailed report
-project_name = Path(project_path).name
-report_content = generate_detailed_report(results, project_path)
-
-# Create results directory if it doesn't exist
-Path('results').mkdir(exist_ok=True)
-
-# Save to markdown file with timestamp
-timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
-report_filename = f"results/{project_name}_detailed_report_{timestamp}.md"
-
-with open(report_filename, 'w', encoding='utf-8') as f:
-    f.write(report_content)
-
-print(f"\n✓ Detailed report saved to: {report_filename}")
-```
-
-Or use the command-line helper:
+1. **Aggregate all grading results** from the 7 skills
+2. **Analyze each category** to extract specific issues, file paths, violations
+3. **Format the report** following the structure outlined above
+4. **Create results directory** if it doesn't exist
+5. **Write the report** using the Write tool with timestamped filename
 
 ```bash
-# After grading, generate detailed report
-python -c "
-from datetime import datetime
-from pathlib import Path
-from src.reporters.detailed_reporter import generate_detailed_report
-import json
-import sys
+# Create results directory
+mkdir -p results
 
-project_path = sys.argv[1]
-results_file = sys.argv[2] if len(sys.argv) > 2 else 'grading_results.json'
+# Generate timestamped filename
+TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
+PROJECT_NAME=$(basename "$PROJECT_PATH")
+REPORT_FILE="results/${PROJECT_NAME}_detailed_report_${TIMESTAMP}.md"
 
-# Load results
-with open(results_file, 'r') as f:
-    results = json.load(f)
-
-# Generate report
-report = generate_detailed_report(results, project_path)
-
-# Save to file
-Path('results').mkdir(exist_ok=True)
-project_name = Path(project_path).name
-timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
-filename = f'results/{project_name}_detailed_report_{timestamp}.md'
-
-with open(filename, 'w', encoding='utf-8') as f:
-    f.write(report)
-
-print(f'✓ Report saved: {filename}')
-" <project_path> [results.json]
+# Claude will use Write tool to create the report content
+# based on the aggregated grading results
 ```
+
+**Report content should include:**
+- Executive summary with score and grade
+- Detailed breakdown for each category
+- Specific file paths and line numbers for violations
+- Actionable fix recommendations
+- Prioritized action plan
+- Quick-fix commands
 
 ## Success Criteria
 

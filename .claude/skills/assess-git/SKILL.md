@@ -148,24 +148,7 @@ git log --grep="refactor" --oneline --no-merges
 - Small, focused commits
 - Clear progression from setup → implementation → testing → documentation
 
-### 6. Use Python Helper for Complete Analysis
-
-Run the Git analyzer for comprehensive assessment:
-
-```bash
-python src/analyzers/git_analyzer.py <project_path>
-```
-
-This will:
-1. Check if directory is a Git repository
-2. Count total commits
-3. Analyze commit messages for conventional format
-4. Check for task references
-5. Analyze commit distribution over time
-6. Identify commit quality issues
-7. Calculate Git workflow score
-
-### 7. Calculate Git Workflow Score
+### 6. Calculate Git Workflow Score
 
 **Scoring Formula:**
 ```
@@ -252,18 +235,6 @@ Output a detailed Git workflow assessment:
 # When prompted, provide project path
 /path/to/student/project
 ```
-
-## Python Helpers Available
-
-1. **git_analyzer.py** - Complete Git workflow analysis
-   ```bash
-   python src/analyzers/git_analyzer.py <path>
-   ```
-
-2. **git_commands.py** - Git command utilities
-   ```bash
-   python src/utils/git_commands.py <path>
-   ```
 
 ## Success Criteria
 

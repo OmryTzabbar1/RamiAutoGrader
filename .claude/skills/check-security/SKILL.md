@@ -81,17 +81,7 @@ Verify proper environment variable management:
 
 **Penalty:** -2 points if environment config is improper
 
-### 4. Use Python Helper (Optional)
-
-For comprehensive analysis, you can run the existing Python analyzer:
-
-```bash
-python src/analyzers/security_scanner.py <project_path>
-```
-
-This will generate a detailed report with all findings.
-
-### 5. Calculate Score
+### 4. Calculate Score
 
 **Scoring Logic:**
 - Start with 10 points
@@ -101,7 +91,7 @@ This will generate a detailed report with all findings.
 - Minimum score: 0
 - Passing threshold: 7/10
 
-### 6. Generate Report
+### 5. Generate Report
 
 Output a JSON report with:
 
