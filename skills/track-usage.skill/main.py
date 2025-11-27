@@ -20,15 +20,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.utils.execution_tracer import ExecutionTracer
 
 
-def run_all_skills_with_tracking(project_path):
+def run_full_agent_workflow_with_tracking(project_path, is_github_url=False):
     """
-    Run all grading skills with execution tracking enabled.
+    Simulate the COMPLETE agent workflow with execution tracking.
 
-    This simulates what the agent does: calls each skill individually.
-    Skills are imported directly (not subprocess) so tracer can see everything.
+    This tracks everything the agent does:
+    1. Clone repository (if GitHub URL)
+    2. Run all grading skills
+    3. Generate detailed report
 
     Args:
-        project_path: Path to project being graded
+        project_path: Path to project or GitHub URL
+        is_github_url: Whether project_path is a GitHub URL
 
     Returns:
         ExecutionTracer: Tracer with collected data
@@ -37,16 +40,39 @@ def run_all_skills_with_tracking(project_path):
     tracer = ExecutionTracer(project_root=project_root)
 
     print("=" * 70)
-    print("EXECUTION TRACKER - Runtime Function Call Monitor")
+    print("EXECUTION TRACKER - Complete Agent Workflow Monitor")
     print("=" * 70)
-    print(f"\nTracking grading of: {project_path}")
-    print("This will run all 7 grading skills and track what gets executed.\n")
+    print(f"\nTracking: {project_path}")
+    print("This simulates the full agent workflow:\n")
+    print("  1. Clone repository (if GitHub URL)")
+    print("  2. Run all 7 grading skills")
+    print("  3. Generate detailed report\n")
 
     # Start tracing
     tracer.start()
 
+    actual_project_path = project_path
+    temp_dir = None
+
     try:
-        # Import all skill modules directly (so tracer can see them)
+        # PHASE 1: Clone repository (if GitHub URL)
+        if is_github_url:
+            print("[PHASE 1] Cloning repository...")
+            from src.utils.git_clone import clone_repository
+            try:
+                result = clone_repository(project_path, depth=None)
+                actual_project_path = result['path']
+                temp_dir = result.get('temp_dir')
+                print(f"    [OK] Cloned to: {actual_project_path}\n")
+            except Exception as e:
+                print(f"    [FAIL] Clone error: {e}\n")
+                return tracer
+        else:
+            print("[PHASE 1] Using local project path (no clone needed)\n")
+
+        # PHASE 2: Run all grading skills
+        print("[PHASE 2] Running all grading skills...\n")
+
         print("[*] Importing check-security...")
         from src.analyzers.security_scanner import scan_for_secrets
         from src.validators.gitignore_validator import validate_gitignore
@@ -72,61 +98,91 @@ def run_all_skills_with_tracking(project_path):
         print("[*] Importing check-ux...")
         from src.analyzers.ux_analyzer import evaluate_ux_quality
 
-        print("\n[*] All skills imported successfully!")
-        print("[*] Now running skills on project...\n")
+        print("\n[*] All skills imported! Running on project...\n")
 
-        # Run the functions to trigger actual execution
+        # Collect results for report generation
+        results = {}
+
         print("[>] Running security checks...")
         try:
-            scan_for_secrets(project_path)
-            validate_gitignore(project_path)
-            check_env_template(project_path)
+            results['security'] = {
+                'secrets': scan_for_secrets(actual_project_path),
+                'gitignore': validate_gitignore(actual_project_path),
+                'env': check_env_template(actual_project_path)
+            }
         except Exception as e:
             print(f"    [WARN] Security check error: {e}")
+            results['security'] = None
 
         print("[>] Running documentation validation...")
         try:
-            check_project_documentation(project_path)
+            results['documentation'] = check_project_documentation(actual_project_path)
         except Exception as e:
             print(f"    [WARN] Docs check error: {e}")
+            results['documentation'] = None
 
         print("[>] Running code analysis...")
         try:
-            check_file_sizes(project_path)
-            analyze_project_docstrings(project_path)
-            analyze_project_naming(project_path)
+            results['code_quality'] = {
+                'file_sizes': check_file_sizes(actual_project_path),
+                'docstrings': analyze_project_docstrings(actual_project_path),
+                'naming': analyze_project_naming(actual_project_path)
+            }
         except Exception as e:
             print(f"    [WARN] Code analysis error: {e}")
+            results['code_quality'] = None
 
         print("[>] Running test evaluation...")
         try:
-            evaluate_tests(project_path)
+            results['testing'] = evaluate_tests(actual_project_path)
         except Exception as e:
             print(f"    [WARN] Test evaluation error: {e}")
+            results['testing'] = None
 
         print("[>] Running git assessment...")
         try:
-            assess_git_workflow(project_path)
+            results['git'] = assess_git_workflow(actual_project_path)
         except Exception as e:
             print(f"    [WARN] Git assessment error: {e}")
+            results['git'] = None
 
         print("[>] Running research evaluation...")
         try:
-            evaluate_research_quality(project_path)
+            results['research'] = evaluate_research_quality(actual_project_path)
         except Exception as e:
             print(f"    [WARN] Research evaluation error: {e}")
+            results['research'] = None
 
         print("[>] Running UX evaluation...")
         try:
-            evaluate_ux_quality(project_path)
+            results['ux'] = evaluate_ux_quality(actual_project_path)
         except Exception as e:
             print(f"    [WARN] UX evaluation error: {e}")
+            results['ux'] = None
 
         print("\n[*] All skills executed!")
+
+        # PHASE 3: Generate detailed report
+        print("\n[PHASE 3] Generating detailed report...")
+        try:
+            from src.reporters.detailed_reporter import generate_detailed_report
+            report_path = generate_detailed_report(actual_project_path, results)
+            print(f"    [OK] Report generated: {report_path}\n")
+        except Exception as e:
+            print(f"    [WARN] Report generation error: {e}\n")
 
     finally:
         # Stop tracing
         tracer.stop()
+
+        # Cleanup temp directory if created
+        if temp_dir and os.path.exists(temp_dir):
+            import shutil
+            try:
+                shutil.rmtree(temp_dir)
+                print(f"[*] Cleaned up temp directory: {temp_dir}")
+            except Exception as e:
+                print(f"[WARN] Cleanup error: {e}")
 
     return tracer
 
@@ -134,20 +190,25 @@ def run_all_skills_with_tracking(project_path):
 def main():
     """Main entry point for usage tracker skill."""
     if len(sys.argv) < 2:
-        print("Usage: /skill track-usage <project_path>")
-        print("\nExample:")
+        print("Usage: /skill track-usage <project_path_or_github_url>")
+        print("\nExamples:")
         print("  /skill track-usage .")
         print("  /skill track-usage ./RamiAutoGrader")
+        print("  /skill track-usage https://github.com/user/repo.git")
         sys.exit(1)
 
     project_path = sys.argv[1]
 
-    if not os.path.exists(project_path):
+    # Check if it's a GitHub URL
+    is_github_url = project_path.startswith(('http://', 'https://')) and 'github.com' in project_path
+
+    # Validate local path (if not GitHub URL)
+    if not is_github_url and not os.path.exists(project_path):
         print(f"Error: Project path does not exist: {project_path}")
         sys.exit(1)
 
-    # Run grading with execution tracking
-    tracer = run_all_skills_with_tracking(project_path)
+    # Run full agent workflow with execution tracking
+    tracer = run_full_agent_workflow_with_tracking(project_path, is_github_url)
 
     # Print summary
     tracer.print_summary()

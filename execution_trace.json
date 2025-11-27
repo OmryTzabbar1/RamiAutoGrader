@@ -1,11 +1,11 @@
 {
   "summary": {
-    "files_executed": 27,
-    "unique_functions_called": 84,
-    "total_function_calls": 3685,
-    "start_time": "2025-11-26T13:16:58.220746",
-    "stop_time": "2025-11-26T13:18:13.905923",
-    "duration_seconds": 75.685177
+    "files_executed": 31,
+    "unique_functions_called": 92,
+    "total_function_calls": 3455,
+    "start_time": "2025-11-27T10:23:42.929140",
+    "stop_time": "2025-11-27T10:28:32.575149",
+    "duration_seconds": 289.646009
   },
   "files_called": [
     "src\\analyzers\\__init__.py",
@@ -23,9 +23,13 @@
     "src\\models\\code_models.py",
     "src\\parsers\\__init__.py",
     "src\\parsers\\python_parser.py",
+    "src\\reporters\\__init__.py",
+    "src\\reporters\\detailed_reporter.py",
     "src\\utils\\execution_tracer.py",
     "src\\utils\\file_finder.py",
+    "src\\utils\\git_clone.py",
     "src\\utils\\git_commands.py",
+    "src\\utils\\git_helpers.py",
     "src\\utils\\line_counter.py",
     "src\\utils\\markdown_utils.py",
     "src\\validators\\__init__.py",
@@ -58,10 +62,16 @@
       "src\\parsers\\__init__.py",
       "src\\parsers\\python_parser.py"
     ],
+    "src\\reporters": [
+      "src\\reporters\\__init__.py",
+      "src\\reporters\\detailed_reporter.py"
+    ],
     "src\\utils": [
       "src\\utils\\execution_tracer.py",
       "src\\utils\\file_finder.py",
+      "src\\utils\\git_clone.py",
       "src\\utils\\git_commands.py",
+      "src\\utils\\git_helpers.py",
       "src\\utils\\line_counter.py",
       "src\\utils\\markdown_utils.py"
     ],
@@ -78,7 +88,7 @@
   "top_functions": [
     {
       "function": "src\\utils\\file_finder.py::<genexpr>",
-      "call_count": 1696
+      "call_count": 1466
     },
     {
       "function": "src\\utils\\git_commands.py::<genexpr>",
@@ -110,7 +120,7 @@
     },
     {
       "function": "src\\analyzers\\security_scanner.py::_scan_file",
-      "call_count": 83
+      "call_count": 75
     },
     {
       "function": "src\\utils\\line_counter.py::count_lines",
@@ -158,6 +168,11 @@
     }
   ],
   "all_function_calls": {
+    "src\\utils\\git_clone.py::<module>": 1,
+    "src\\utils\\git_helpers.py::<module>": 1,
+    "src\\utils\\git_clone.py::clone_repository": 1,
+    "src\\utils\\git_helpers.py::extract_repo_name": 1,
+    "src\\utils\\git_helpers.py::execute_git_clone": 1,
     "src\\analyzers\\__init__.py::<module>": 1,
     "src\\analyzers\\security_scanner.py::<module>": 1,
     "src\\models\\__init__.py::<module>": 1,
@@ -192,8 +207,8 @@
     "src\\validators\\readme_validator.py::<module>": 1,
     "src\\analyzers\\security_scanner.py::scan_for_secrets": 1,
     "src\\utils\\file_finder.py::find_code_files": 8,
-    "src\\utils\\file_finder.py::<genexpr>": 1696,
-    "src\\analyzers\\security_scanner.py::_scan_file": 83,
+    "src\\utils\\file_finder.py::<genexpr>": 1466,
+    "src\\analyzers\\security_scanner.py::_scan_file": 75,
     "src\\validators\\gitignore_validator.py::validate_gitignore": 1,
     "src\\validators\\env_validator.py::check_env_template": 1,
     "src\\analyzers\\documentation_checker.py::check_project_documentation": 1,
@@ -241,6 +256,9 @@
     "src\\validators\\readme_validator.py::<genexpr>": 43,
     "src\\analyzers\\ux_analyzer.py::check_cli_help": 1,
     "src\\analyzers\\ux_analyzer.py::_build_ux_message": 1,
+    "src\\reporters\\__init__.py::<module>": 1,
+    "src\\reporters\\detailed_reporter.py::<module>": 1,
+    "src\\reporters\\detailed_reporter.py::generate_detailed_report": 1,
     "src\\utils\\execution_tracer.py::stop": 1
   }
 }
