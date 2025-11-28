@@ -1,0 +1,173 @@
+# Excel Feedback Generator Configuration
+version: "1.0"
+
+# Agent Configuration
+agent:
+  name: excel-feedback-generator
+  timeout: 600  # 10 minutes max for all students
+  retry_policy:
+    max_retries: 3
+    retry_delay: 2  # seconds
+    backoff_strategy: exponential  # 2s, 4s, 8s
+
+# Skill-Specific Configuration
+skills:
+  extract_pdf_metadata:
+    timeout: 30  # 30 seconds per student
+    confidence_threshold: 0.7  # Minimum confidence for auto-acceptance
+    model: claude-sonnet-4-5-20250929
+    temperature: 0.0  # Deterministic extraction
+    max_tokens: 500
+
+  generate_summary:
+    timeout: 20  # 20 seconds per student
+    model: claude-sonnet-4-5-20250929
+    temperature: 0.3  # Slight creativity for professional tone
+    max_tokens: 200
+    word_count:
+      min: 30
+      max: 50
+    validation:
+      require_score_prefix: true  # Must start with "Score: X/Y"
+      allow_markdown: false
+      allow_emojis: false
+
+  populate_excel:
+    timeout: 60  # 60 seconds total
+    output_format: xlsx
+    output_directory: results/
+    excel_formatting:
+      header_style:
+        font: Calibri 11pt Bold
+        background: "#D9E1F2"
+        alignment: center
+      cell_style:
+        font: Calibri 11pt
+        alignment: left
+        borders: thin
+      summary_column:
+        text_wrap: true
+        width: 60
+      hyperlink_style:
+        color: "#0563C1"
+        underline: single
+
+# Excel Column Configuration
+excel_columns:
+  - name: Student ID
+    width: 12
+    key: student_id
+  - name: Student Name
+    width: 20
+    key: student_name
+  - name: Partner Name
+    width: 20
+    key: partner_name
+  - name: Assignment Name
+    width: 25
+    key: assignment_name
+  - name: GitHub URL
+    width: 40
+    key: github_url
+  - name: Grade
+    width: 10
+    key: grade
+  - name: Summary
+    width: 60
+    key: summary
+  - name: Notes
+    width: 15
+    key: notes
+
+# Error Handling Configuration
+error_handling:
+  # Skill-level failures (e.g., one student's PDF fails)
+  on_skill_failure:
+    action: log_and_continue  # Don't fail entire workflow
+    log_file: results/excel_generation_errors.log
+
+  # Critical failures (e.g., Excel generation fails)
+  on_critical_failure:
+    action: fail  # Fail entire workflow
+    notify: true
+
+  # Manual review flags
+  manual_review_flags:
+    low_confidence: "LOW_CONFIDENCE_REVIEW"
+    pdf_missing: "PDF_MISSING"
+    extraction_error: "EXTRACTION_ERROR"
+    api_error: "API_ERROR_MANUAL_REVIEW"
+    parse_error: "PARSE_ERROR"
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  output_file: results/excel_feedback_agent.log
+  console_output: true
+
+# Performance Configuration
+performance:
+  # Parallel processing (future enhancement)
+  concurrent_api_calls: 5  # Max concurrent Claude API calls
+  rate_limiting:
+    requests_per_minute: 45  # Leave buffer (Tier 1 limit: 50/min)
+    requests_per_hour: 2500  # Tier 1 limit
+
+  # Caching (future enhancement)
+  cache_enabled: false
+  cache_ttl: 3600  # 1 hour
+
+# Environment Variables
+environment:
+  required:
+    - ANTHROPIC_API_KEY
+
+  optional:
+    - CONFIDENCE_THRESHOLD  # Override default 0.7
+    - EXCEL_OUTPUT_DIR      # Override default results/
+
+# Validation Rules
+validation:
+  student_data:
+    min_students: 1
+    max_students: 1000
+    required_fields:
+      - student_id
+      - student_name
+      - assignment_name
+      - grade
+      - summary
+
+  pdf_metadata:
+    student_id_pattern: "^\\d{8}$"  # 8 digits
+    student_name_min_words: 2
+    assignment_name_min_length: 3
+
+  summary:
+    min_word_count: 30
+    max_word_count: 50
+    required_prefix: "Score:"
+    forbidden_patterns:
+      - "**"  # Markdown bold
+      - "##"  # Markdown headers
+      - "```" # Code blocks
+
+# Success Criteria
+success_criteria:
+  - Excel file exists at output path
+  - Excel file size > 0 bytes
+  - All students present in Excel
+  - No critical errors in execution
+  - Manual review flags < 30% of students
+
+# Notifications (future enhancement)
+notifications:
+  enabled: false
+  email:
+    recipients: []
+    on_success: false
+    on_failure: true
+  slack:
+    webhook_url: ""
+    channel: ""

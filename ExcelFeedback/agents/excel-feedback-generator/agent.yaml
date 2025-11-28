@@ -1,0 +1,228 @@
+name: excel-feedback-generator
+version: 1.0.0
+description: Generate instructor-facing Excel feedback sheets after auto-grading completes
+
+# Agent Configuration
+agent:
+  type: orchestrator
+  timeout: 600  # 10 minutes max for all students
+  retry_policy:
+    max_retries: 3
+    backoff_strategy: exponential
+
+# Skills this agent orchestrates
+skills:
+  - name: extract-pdf-metadata
+    path: ../../skills/extract-pdf-metadata
+    timeout: 30
+
+  - name: generate-summary
+    path: ../../skills/generate-summary
+    timeout: 20
+
+  - name: populate-excel
+    path: ../../skills/populate-excel
+    timeout: 60
+
+# Input parameters (from RamiAutoGrader agent)
+inputs:
+  grading_results_dir:
+    type: string
+    required: true
+    description: Directory containing grading results for all students
+
+  pdf_submissions_dir:
+    type: string
+    required: true
+    description: Directory containing student PDF submissions
+
+  assignment_name:
+    type: string
+    required: true
+    description: Name of the assignment for Excel filename
+
+# Output files
+outputs:
+  excel_file:
+    type: string
+    description: Path to generated Excel feedback file
+    pattern: "results/FinalFeedback_{assignment_name}.xlsx"
+
+# Workflow Steps
+workflow:
+
+  # Step 1: Validate Inputs
+  - step: validate_inputs
+    description: Verify grading results and PDF directories exist
+    actions:
+      - type: bash
+        command: |
+          if [ ! -d "${grading_results_dir}" ]; then
+            echo "Error: Grading results directory not found: ${grading_results_dir}"
+            exit 1
+          fi
+          if [ ! -d "${pdf_submissions_dir}" ]; then
+            echo "Error: PDF submissions directory not found: ${pdf_submissions_dir}"
+            exit 1
+          fi
+          echo "Input validation passed"
+
+  # Step 2: Extract Metadata from All PDFs
+  - step: extract_all_metadata
+    description: Extract student metadata from PDF submissions
+    for_each:
+      directory: ${pdf_submissions_dir}
+      pattern: "*/student_submission.pdf"
+      variable: pdf_path
+    skill: extract-pdf-metadata
+    inputs:
+      pdf_path: ${pdf_path}
+    outputs:
+      metadata: ${student.metadata}
+    error_handling:
+      on_failure: continue  # Continue with other students if one fails
+      log_errors: true
+
+  # Step 3: Generate Summaries for All Students
+  - step: generate_all_summaries
+    description: Generate feedback summaries from grading reports
+    for_each:
+      directory: ${grading_results_dir}
+      pattern: "*/grading_results.json"
+      variable: grading_report_path
+    skill: generate-summary
+    inputs:
+      grading_report_path: ${grading_report_path}
+    outputs:
+      summary: ${student.summary}
+    error_handling:
+      on_failure: continue
+      log_errors: true
+
+  # Step 4: Aggregate Student Data
+  - step: aggregate_student_data
+    description: Combine metadata, grading results, and summaries
+    actions:
+      - type: python
+        script: |
+          import os
+          import json
+
+          student_data = []
+
+          # Iterate through each student folder
+          for student_folder in os.listdir(grading_results_dir):
+            student_path = os.path.join(grading_results_dir, student_folder)
+
+            if not os.path.isdir(student_path):
+              continue
+
+            # Load metadata
+            metadata_path = os.path.join(student_path, "metadata.json")
+            metadata = {}
+            if os.path.exists(metadata_path):
+              with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+
+            # Load grading results
+            grading_path = os.path.join(student_path, "grading_results.json")
+            grading_results = {}
+            if os.path.exists(grading_path):
+              with open(grading_path, 'r') as f:
+                grading_results = json.load(f)
+
+            # Load extracted metadata (from extract-pdf-metadata skill)
+            pdf_metadata_path = os.path.join(student_path, "pdf_metadata.json")
+            pdf_metadata = {}
+            if os.path.exists(pdf_metadata_path):
+              with open(pdf_metadata_path, 'r') as f:
+                pdf_metadata = json.load(f)
+
+            # Load summary (from generate-summary skill)
+            summary_path = os.path.join(student_path, "summary.txt")
+            summary = ""
+            if os.path.exists(summary_path):
+              with open(summary_path, 'r') as f:
+                summary = f.read().strip()
+
+            # Combine all data
+            student_entry = {
+              "student_id": pdf_metadata.get("student_id", "NOT_FOUND"),
+              "student_name": pdf_metadata.get("student_name", "NOT_FOUND"),
+              "partner_name": pdf_metadata.get("partner_name", "NOT_FOUND"),
+              "assignment_name": pdf_metadata.get("assignment_name", "NOT_FOUND"),
+              "github_url": metadata.get("github_url", ""),
+              "grade": f"{grading_results.get('total_score', 0)}/{grading_results.get('max_score', 100)}",
+              "summary": summary if summary else "Summary not available",
+              "notes": ""
+            }
+
+            # Add notes for manual review cases
+            if pdf_metadata.get("extraction_status") == "NEEDS_MANUAL_REVIEW":
+              student_entry["notes"] = "LOW_CONFIDENCE_REVIEW"
+            elif pdf_metadata.get("extraction_status") == "FILE_NOT_FOUND":
+              student_entry["notes"] = "PDF_MISSING"
+            elif pdf_metadata.get("extraction_status") == "API_ERROR":
+              student_entry["notes"] = "EXTRACTION_ERROR"
+
+            student_data.append(student_entry)
+
+          # Save aggregated data
+          output_path = os.path.join(grading_results_dir, "aggregated_student_data.json")
+          with open(output_path, 'w') as f:
+            json.dump(student_data, f, indent=2)
+
+          print(f"Aggregated data for {len(student_data)} students")
+    outputs:
+      student_data: ${grading_results_dir}/aggregated_student_data.json
+
+  # Step 5: Create Excel Workbook
+  - step: create_excel
+    description: Generate formatted Excel feedback file
+    skill: populate-excel
+    inputs:
+      student_data: ${student_data}  # From previous step
+      assignment_name: ${assignment_name}
+      output_dir: results/
+    outputs:
+      excel_path: ${excel_file}
+    error_handling:
+      on_failure: fail  # Fail the entire workflow if Excel generation fails
+
+  # Step 6: Verify Excel File Created
+  - step: verify_output
+    description: Verify Excel file was created successfully
+    actions:
+      - type: bash
+        command: |
+          if [ -f "${excel_file}" ]; then
+            echo "✓ Excel file created successfully: ${excel_file}"
+            ls -lh "${excel_file}"
+          else
+            echo "✗ Error: Excel file not created"
+            exit 1
+          fi
+
+# Error Handling Strategy
+error_handling:
+  global:
+    on_skill_failure: log_and_continue  # Don't fail entire workflow if one student fails
+    on_critical_failure: fail  # Fail if Excel generation fails
+    log_file: results/excel_generation_errors.log
+
+  retry_policy:
+    max_retries: 3
+    retry_delay: 2  # seconds
+    backoff_multiplier: 2  # exponential backoff
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  output: results/excel_feedback_agent.log
+
+# Success Criteria
+success_criteria:
+  - Excel file exists at output path
+  - Excel file contains data for all students
+  - No critical errors in execution
