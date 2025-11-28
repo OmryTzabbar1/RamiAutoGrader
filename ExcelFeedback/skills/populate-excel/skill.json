@@ -1,0 +1,35 @@
+{
+  "name": "populate-excel",
+  "version": "1.0.0",
+  "description": "Create formatted Excel workbook with student feedback data",
+  "author": "RamiAutoGrader",
+  "inputs": {
+    "student_data": {
+      "type": "array",
+      "required": true,
+      "description": "List of student dictionaries with feedback data"
+    },
+    "assignment_name": {
+      "type": "string",
+      "required": true,
+      "description": "Name of assignment for filename"
+    },
+    "output_dir": {
+      "type": "string",
+      "required": false,
+      "default": "results/",
+      "description": "Output directory path"
+    }
+  },
+  "outputs": {
+    "excel_file_path": {
+      "type": "string",
+      "description": "Path to created Excel file (e.g., results/FinalFeedback_DesignPatterns.xlsx)"
+    }
+  },
+  "dependencies": [
+    "openpyxl>=3.1.0"
+  ],
+  "entrypoint": "scripts/create_excel.py",
+  "timeout": 60
+}
