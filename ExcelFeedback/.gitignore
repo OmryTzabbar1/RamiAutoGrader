@@ -50,8 +50,12 @@ htmlcov/
 # Results
 results/
 *.xlsx
-*.json
 *.log
+
+# Ignore JSON results but NOT skill.json manifests
+*.json
+!skill.json
+!**/skill.json
 
 # OS
 .DS_Store

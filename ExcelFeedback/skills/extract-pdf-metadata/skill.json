@@ -1,0 +1,62 @@
+{
+  "name": "extract-pdf-metadata",
+  "version": "1.0.0",
+  "description": "Extract student metadata from PDF submissions using Claude API",
+  "author": "RamiAutoGrader",
+  "inputs": {
+    "pdf_path": {
+      "type": "string",
+      "required": true,
+      "description": "Absolute path to student's PDF submission file"
+    }
+  },
+  "outputs": {
+    "student_id": {
+      "type": "string",
+      "description": "Student's unique ID (8 digits) or 'NOT_FOUND'"
+    },
+    "student_name": {
+      "type": "string",
+      "description": "Student's full name or 'NOT_FOUND'"
+    },
+    "partner_name": {
+      "type": "string",
+      "description": "Partner's full name or 'NOT_FOUND'"
+    },
+    "assignment_name": {
+      "type": "string",
+      "description": "Assignment name/title or 'NOT_FOUND'"
+    },
+    "confidence": {
+      "type": "number",
+      "description": "Confidence score (0.0-1.0)"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": ["SUCCESS", "NEEDS_MANUAL_REVIEW", "FILE_NOT_FOUND", "PDF_CORRUPTED", "API_ERROR", "PARSE_ERROR"],
+      "description": "Status of metadata extraction"
+    }
+  },
+  "dependencies": [
+    "pdfplumber>=0.10.0",
+    "anthropic>=0.40.0",
+    "python-dotenv>=1.0.0"
+  ],
+  "environment": {
+    "ANTHROPIC_API_KEY": {
+      "required": true,
+      "description": "Claude API key from Anthropic"
+    },
+    "CONFIDENCE_THRESHOLD": {
+      "required": false,
+      "default": "0.7",
+      "description": "Minimum confidence score for auto-acceptance"
+    }
+  },
+  "entrypoint": "scripts/extract_metadata.py",
+  "timeout": 30,
+  "retry_policy": {
+    "max_retries": 3,
+    "backoff_strategy": "exponential"
+  }
+}
