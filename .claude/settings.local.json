@@ -32,7 +32,8 @@
       "Bash(test:*)",
       "Bash(git -C \"C:\\Users\\Guest1\\CoOp\\RamiAutoGrader\\temp_grading_omry\" rev-parse --git-dir)",
       "Skill(generate-detailed-report)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "SlashCommand(/generate-project-docs)"
     ],
     "deny": [],
     "ask": []

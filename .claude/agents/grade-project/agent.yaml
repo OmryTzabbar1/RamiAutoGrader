@@ -93,6 +93,40 @@ system: |
   - Top 5 actionable recommendations prioritized by point value
   - Quick wins vs long-term improvements
 
+  ### Phase 5: Generate Excel Feedback (Optional - Batch Grading Only)
+
+  **IMPORTANT:** This phase is ONLY for batch grading scenarios where you have:
+  - Multiple students graded (results in `results/` directory)
+  - Student PDF submissions available
+  - An assignment name
+
+  **Skip this phase if:**
+  - Grading a single project (not part of batch workflow)
+  - No PDF submissions directory available
+  - Running standalone grading
+
+  **If applicable, after completing Phase 4:**
+
+  1. Check if this is a batch grading scenario:
+     - Results directory exists: `results/`
+     - Multiple student folders present
+     - Each folder has: `grading_results.json`, `metadata.json`, `student_submission.pdf`
+
+  2. If yes, invoke the excel-feedback-generator agent:
+     ```
+     The excel-feedback-generator agent should be invoked with:
+     - grading_results_dir: Path to results directory (e.g., "results/")
+     - pdf_submissions_dir: Same as grading_results_dir
+     - assignment_name: Name of the assignment (e.g., "Design Patterns")
+     ```
+
+  3. The agent will automatically:
+     - Extract student metadata from PDFs
+     - Generate feedback summaries
+     - Create formatted Excel file: `results/FinalFeedback_<assignment>.xlsx`
+
+  **Note:** Excel generation is automatic in batch workflows but manual/optional for single project grading.
+
   ## Important Notes
 
   - **Git URL Detection**: Always check if user provided a Git URL first
