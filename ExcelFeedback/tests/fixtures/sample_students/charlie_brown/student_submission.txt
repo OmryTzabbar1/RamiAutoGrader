@@ -1,0 +1,12 @@
+Design Patterns Project
+
+Student: Charlie Brown
+ID: 11223344
+
+This is my design patterns project. I worked on it solo.
+
+Assignment: Design Patterns
+
+The project includes implementations of several patterns.
+
+GitHub: https://github.com/charliebrown/dp-project

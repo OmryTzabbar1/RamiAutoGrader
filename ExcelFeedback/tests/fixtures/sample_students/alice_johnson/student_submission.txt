@@ -1,0 +1,17 @@
+Design Patterns - Final Submission
+
+Student Information:
+- ID: 87654321
+- Name: Alice Johnson
+- Partner: Bob Williams
+- Course: Advanced Software Engineering
+- Assignment: Design Patterns Implementation
+
+Project Overview:
+This submission presents a comprehensive implementation of classic design patterns
+including Factory, Observer, Strategy, Singleton, and Decorator patterns.
+
+All code follows best practices with 100% test coverage and comprehensive documentation.
+
+Repository: https://github.com/alicejohnson/patterns-project
+Submission Date: November 27, 2025

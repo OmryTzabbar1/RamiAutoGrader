@@ -1,0 +1,19 @@
+Student Submission - Design Patterns Project
+
+Student ID: 12345678
+Student Name: John Doe
+Partner Name: Jane Smith
+Assignment: Design Patterns Implementation
+
+This project implements the following design patterns:
+- Factory Pattern
+- Observer Pattern
+- Strategy Pattern
+- Singleton Pattern
+
+The implementation demonstrates understanding of software design principles
+and best practices for object-oriented programming.
+
+GitHub Repository: https://github.com/johndoe/design-patterns
+
+Submission Date: 2025-11-27
